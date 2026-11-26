@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { cliCommands, preRegistration, type PlanNames } from './plan';
+import { cleanName, cliCommands, preRegistration, type PlanNames } from './plan';
 import type { Forecast, ForecastInput } from './forecast';
 import { EVENTS, track } from './experiment';
 
@@ -43,7 +43,8 @@ function Block({ title, file, text }: { title: string; file: string; text: strin
 
 export function PlanPanel({ input, result, names, onNames, deadlineLabel }: Props) {
   const today = new Date().toLocaleDateString('en-CA');
-  const set = (key: keyof PlanNames) => (e: React.ChangeEvent<HTMLInputElement>) => onNames({ ...names, [key]: e.target.value.replace(/\s+/g, '_') });
+  const set = (key: keyof PlanNames) => (e: React.ChangeEvent<HTMLInputElement>) =>
+    onNames({ ...names, [key]: cleanName(e.target.value, key === 'event' ? 'event' : 'flag') });
   return (
     <section className="plan" aria-labelledby="plan-title">
       <div className="plan-intro">
@@ -56,7 +57,7 @@ export function PlanPanel({ input, result, names, onNames, deadlineLabel }: Prop
         </div>
       </div>
       <Block title="Pre-registration" file="EXPERIMENT.md" text={preRegistration(input, result, names, deadlineLabel, today)} />
-      <Block title="Flagsmith CLI" file="setup.sh" text={cliCommands(input, names)} />
+      <Block title="Flagsmith CLI" file="setup.sh" text={cliCommands(input, result, names, deadlineLabel)} />
     </section>
   );
 }

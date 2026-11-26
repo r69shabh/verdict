@@ -27,12 +27,12 @@ export function preRegistration(input: ForecastInput, result: Forecast, names: P
 Registered ${today}, before any results were read.
 
 ## Hypothesis
-${names.change} will lift the share of visitors who ${names.success} from ${pct(result.controlRate, 1)} to at least ${pct(result.variantRate, 1)} (+${pct(input.relativeLift)} relative) by ${deadline}.
+${hypothesis(input, result, names, deadline)}
 
 ## Design
-- Flag: \`${names.flag}\`. Control is the flag's own value, \`${names.variant}\` is the change.
+- Flag: \`${cleanName(names.flag, 'flag') || 'my_experiment'}\`. Control is the flag's own value, \`${cleanName(names.variant, 'flag') || 'variant'}\` is the change.
 - Enrolment: ${pct(input.rolloutShare)} of visitors, split ${pct(1 - input.variantShare)} control / ${pct(input.variantShare)} change.
-- Primary metric: \`${names.event}\` (occurrence, expected to increase).
+- Primary metric: \`${cleanName(names.event, 'event') || 'conversion'}\` (occurrence, expected to increase).
 
 ## Power
 - Expected by the deadline: ${count(result.controlN + result.variantN)} enrolled visitors.
@@ -47,7 +47,21 @@ ${names.change} will lift the share of visitors who ${names.success} from ${pct(
 `;
 }
 
-export function cliCommands(input: ForecastInput, names: PlanNames) {
+const sq = (value: string) => `'${value.replace(/'/g, `'\\''`)}'`;
+
+export function cleanName(value: string, kind: 'flag' | 'event') {
+  const spaced = value.replace(/\s+/g, '_');
+  return kind === 'flag' ? spaced.toLowerCase().replace(/[^a-z0-9_-]/g, '') : spaced.replace(/[^A-Za-z0-9_.-]/g, '');
+}
+
+export function hypothesis(input: ForecastInput, result: Forecast, names: PlanNames, deadline: string) {
+  return `${names.change} will lift the share of visitors who ${names.success} from ${pct(result.controlRate, 1)} to at least ${pct(result.variantRate, 1)} (+${pct(input.relativeLift)} relative) by ${deadline}.`;
+}
+
+export function cliCommands(input: ForecastInput, result: Forecast, names: PlanNames, deadline: string) {
+  const flag = cleanName(names.flag, 'flag') || 'my_experiment';
+  const variant = cleanName(names.variant, 'flag') || 'variant';
+  const event = cleanName(names.event, 'event') || 'conversion';
   const variantShare = Math.round(input.variantShare * 100);
   const rollout = Math.round(input.rolloutShare * 100);
   return `# Pick the project and environment once: flagsmith project list, then
@@ -55,26 +69,23 @@ flagsmith init --project <project> --environment <environment key>
 ENV=<environment key>
 
 # 1. The flag: control is the flag's own value; the change is a keyed variant
-flagsmith feature create ${names.flag} --value control --enabled
-flagsmith feature variant add ${names.flag} --value ${names.variant} --key ${names.variant} --weight 0
+flagsmith feature create ${flag} --value control --enabled
+flagsmith feature variant add ${flag} --value ${variant} --key ${variant} --weight 0
 
 # 2. The metric (event names are case-sensitive)
-echo '{"name":"${names.event}","aggregation":"occurrence","direction":"up","definition":{"version":1,"event":"${names.event}"}}' \\
-  | flagsmith api api/v1/environments/$ENV/experiment-metrics/ --input -
+printf '{"name":"%s","aggregation":"occurrence","direction":"up","definition":{"version":1,"event":"%s"}}' ${event} ${event} \\
+  | flagsmith api api/v1/environments/$ENV/experiment-metrics/ --input - > /dev/null && echo "Created metric ${event}"
 
 # 3. The experiment, created but not started (starting locks the flag)
-FEATURE_ID=$(flagsmith feature get ${names.flag} --jq '.id')
-VARIANT_ID=$(flagsmith feature get ${names.flag} --jq '.variants[0].id')
-METRIC_ID=$(flagsmith api api/v1/environments/$ENV/experiment-metrics/ --jq '.results[] | select(.name=="${names.event}") | .id')
-cat <<JSON | flagsmith api api/v1/environments/$ENV/experiments/ --input -
-{"feature": $FEATURE_ID, "name": "${names.flag}", "hypothesis": "${names.change.replace(/"/g, "'")}",
- "metrics": [{"metric": $METRIC_ID, "expected_direction": "increase"}],
- "experiment_rollout": {"enabled": true, "rollout_percentage": ${rollout},
-   "feature_state_value": {"type": "string", "value": "control"},
-   "multivariate_feature_state_values": [{"multivariate_feature_option": $VARIANT_ID, "percentage_allocation": ${variantShare}}]}}
-JSON
+FEATURE_ID=$(flagsmith feature get ${flag} --jq '.id')
+VARIANT_ID=$(flagsmith feature get ${flag} --jq '.variants[] | select(.key=="${variant}") | .id')
+METRIC_ID=$(flagsmith api api/v1/environments/$ENV/experiment-metrics/ --jq '.results[] | select(.name=="${event}") | .id')
+EXPERIMENT_ID=$(printf '{"feature":%s,"name":%s,"hypothesis":%s,"metrics":[{"metric":%s,"expected_direction":"increase"}],"experiment_rollout":{"enabled":true,"rollout_percentage":${rollout},"feature_state_value":{"type":"string","value":"control"},"multivariate_feature_state_values":[{"multivariate_feature_option":%s,"percentage_allocation":${variantShare}}]}}' \\
+  "$FEATURE_ID" ${sq(JSON.stringify(flag))} ${sq(JSON.stringify(hypothesis(input, result, names, deadline)))} "$METRIC_ID" "$VARIANT_ID" \\
+  | flagsmith api api/v1/environments/$ENV/experiments/ --input - --jq '.id')
+echo "Created experiment $EXPERIMENT_ID"
 
-# 4. When the code is live: start it
-flagsmith api api/v1/environments/$ENV/experiments/<experiment id>/start/ -X POST
+# 4. Once the code that records exposures and events is live: start it
+flagsmith api api/v1/environments/$ENV/experiments/$EXPERIMENT_ID/start/ -X POST
 `;
 }

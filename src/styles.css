@@ -158,7 +158,8 @@ a:hover {
 .blank:focus-visible {
   outline: none;
   border-bottom-color: var(--cobalt);
-  background: rgb(39 71 216 / 0.08);
+  background: rgb(39 71 216 / 0.1);
+  box-shadow: 0 2px 0 var(--cobalt);
 }
 
 .blank[aria-invalid='true'] {
@@ -405,7 +406,7 @@ a:hover {
   border-radius: 8px;
   background: var(--sheet);
   color: var(--ink);
-  font: 500 0.9375rem ui-monospace, 'SF Mono', Menlo, monospace;
+  font: 500 1rem ui-monospace, 'SF Mono', Menlo, monospace;
 }
 
 .names input:focus-visible {
@@ -532,13 +533,55 @@ a:hover {
   }
 }
 
-.big,
-.curve-note,
-.blank {
+.big {
   font-variant-numeric: tabular-nums;
 }
 
 .blank.date.empty {
   color: var(--ink-2);
   font-weight: 400;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.facts {
+  display: grid;
+  gap: 8px;
+  margin: 4px 0 14px;
+  font-size: 0.9375rem;
+}
+
+.facts div {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.facts dt {
+  color: #c9d3e4;
+}
+
+.facts dd {
+  margin: 0;
+  color: #eef2f8;
+  font-weight: 650;
+  text-align: right;
+}
+
+@media (max-width: 600px) {
+  .facts div {
+    display: grid;
+    gap: 0;
+  }
+
+  .facts dd {
+    text-align: left;
+  }
 }

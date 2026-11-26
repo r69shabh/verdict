@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { forecast, normalCdf, normalQuantile, validate, type ForecastInput } from './forecast';
+import { detectableLift, forecast, normalCdf, normalQuantile, outcomeAfter, validate, type ForecastInput } from './forecast';
 
 const base: ForecastInput = {
   baselineRate: 0.3,
@@ -86,10 +86,26 @@ function betaMoments(alpha: number, beta: number): [number, number] {
   return [alpha / sum, (alpha * beta) / (sum * sum * (sum + 1))];
 }
 
+describe('detectableLift', () => {
+  it('is the lift that gives exactly an 80% chance by the deadline', () => {
+    const lift = detectableLift(base)!;
+    expect(outcomeAfter({ ...base, relativeLift: lift }, base.days).win).toBeCloseTo(0.8, 3);
+    expect(lift).toBeGreaterThan(0.15);
+    expect(lift).toBeLessThan(0.25);
+  });
+  it('is null when even the largest lift cannot clear the floor', () => {
+    expect(detectableLift({ ...base, visitorsPerDay: 10, days: 1 })).toBeNull();
+  });
+});
+
 describe('validate', () => {
   it('flags impossible inputs', () => {
     expect(validate(base)).toEqual([]);
     expect(validate({ ...base, baselineRate: 0.9, relativeLift: 0.2 }).map((e) => e.field)).toContain('relativeLift');
     expect(validate({ ...base, days: 0 }).map((e) => e.field)).toEqual(['days']);
+  });
+  it('says a field is not a number instead of piling up range errors', () => {
+    const errors = validate({ ...base, baselineRate: NaN, relativeLift: NaN });
+    expect(errors.map((e) => e.message)).toEqual(['Today’s rate must be a number.', 'The expected lift must be a number.']);
   });
 });

@@ -1,5 +1,6 @@
 import type { CSSProperties } from 'react';
-import { outcomeAfter, type Forecast, type ForecastInput } from './forecast';
+import { detectableLift, outcomeAfter, type Forecast, type ForecastInput } from './forecast';
+import { formatDuration } from './fields';
 
 type Props = {
   input: ForecastInput | null;
@@ -10,10 +11,17 @@ type Props = {
 
 const count = (value: number) => Math.round(value).toLocaleString('en-US');
 
+const outOf100 = (p: number) => Math.min(99, Math.round(p * 100));
+const when = (days: number) => {
+  const time = new Date(Date.now() + days * 86400_000);
+  time.setMinutes(time.getMinutes() >= 30 ? 60 : 0, 0, 0);
+  return new Intl.DateTimeFormat(undefined, { weekday: 'short', day: 'numeric', month: 'short', hour: 'numeric' }).format(time);
+};
+
 function dots(result: Forecast | null) {
   if (!result) return Array<'idle'>(100).fill('idle');
-  const win = Math.round(result.outcome.win * 100);
-  const lose = Math.round(result.outcome.lose * 100);
+  const win = result.clearsFloor ? outOf100(result.outcome.win) : 0;
+  const lose = result.clearsFloor ? Math.round(result.outcome.lose * 100) : 0;
   return Array.from({ length: 100 }, (_, i) => (i < win ? 'win' : i >= 100 - lose ? 'lose' : 'open'));
 }
 
@@ -42,16 +50,46 @@ function Curve({ input, result, deadlineLabel }: { input: ForecastInput; result:
           {deadlineLabel}
         </text>
       </svg>
-      <figcaption>Chance of a winner, from now until {result.daysFor80 && result.daysFor80 > input.days ? 'well past' : ''} your deadline</figcaption>
+      <figcaption>Chance of a winner, from now until {result.daysFor80 && result.daysFor80 > input.days ? 'well past ' : ''}your deadline</figcaption>
     </figure>
   );
 }
 
+function Facts({ input, result }: { input: ForecastInput; result: Forecast }) {
+  const lift = detectableLift(input);
+  const days80 = result.daysFor80;
+  return (
+    <dl className="facts">
+      <div>
+        <dt>First numbers in Flagsmith</dt>
+        <dd>{result.floorDay === null ? 'not before your deadline' : `after about ${formatDuration(result.floorDay)}`}</dd>
+      </div>
+      <div>
+        <dt>80% chance of a winner</dt>
+        <dd>{days80 === null ? 'not reachable' : days80 <= input.days ? `by ${when(days80)}, before your deadline` : days80 <= 60 ? `by ${when(days80)}` : `in about ${formatDuration(days80)}`}</dd>
+      </div>
+      <div>
+        <dt>Smallest lift you can reliably catch in time</dt>
+        <dd>{lift === null ? 'none: not enough traffic' : `+${Math.ceil(lift * 100)}%`}</dd>
+      </div>
+    </dl>
+  );
+}
+
+function smallerArm(input: ForecastInput, result: Forecast) {
+  if (result.controlN === result.variantN) return { who: 'each version gets', n: result.controlN, conversions: result.controlN * result.controlRate };
+  return result.variantN < result.controlN
+    ? { who: 'the change only gets', n: result.variantN, conversions: result.variantN * result.variantRate }
+    : { who: 'the original only gets', n: result.controlN, conversions: result.controlN * input.baselineRate };
+}
+
 export function ForecastPanel({ input, result, deadlineLabel, sweep }: Props) {
   const states = dots(result);
-  const win = result ? Math.round(result.outcome.win * 100) : null;
+  const win = result ? (result.clearsFloor ? outOf100(result.outcome.win) : 0) : null;
+  const summary = result ? `${win} in 100 chance Flagsmith calls a winner by ${deadlineLabel}.` : '';
   return (
-    <section className="forecast" aria-live="polite" aria-labelledby="forecast-title">
+    <section className="forecast" aria-labelledby="forecast-title">
+      <p className="sr-only" aria-live="polite">{summary}</p>
       <div className={`field ${sweep ? 'sweep' : ''}`} key={sweep} role="img" aria-label={result ? `${win} of 100 simulated futures reach a verdict` : 'No forecast yet'}>
         {states.map((state, i) => (
           <span key={i} className={`dot ${state}`} style={{ '--i': i } as CSSProperties} />
@@ -69,11 +107,14 @@ export function ForecastPanel({ input, result, deadlineLabel, sweep }: Props) {
             <span className="big">0</span> in 100
           </h2>
           <p>
-            By {deadlineLabel} each version gets about {count(result.controlN)} visitors and {count(result.controlN * result.controlRate)} conversions.
-            Flagsmith shows no result until every version has at least 50 visitors and 5 conversions.
+            {(() => {
+              const arm = smallerArm(input, result);
+              return `By ${deadlineLabel} ${arm.who} about ${count(arm.n)} visitors and ${count(arm.conversions)} conversions. Flagsmith shows no result until every version has at least 50 visitors and 5 conversions.`;
+            })()}
           </p>
           <p className="needs">
-            You need about {count(result.enrolledFor80 ?? 0)} visitors in the test for an 80% chance{result.daysFor80 ? `, ${result.daysFor80.toFixed(1)} days at your traffic` : ''}.
+            You need about {count(result.enrolledFor80 ?? 0)} visitors in the test for an 80% chance
+            {result.daysFor80 ? `, ${formatDuration(result.daysFor80)} at your traffic` : ''}.
           </p>
         </div>
       ) : (
@@ -91,10 +132,11 @@ export function ForecastPanel({ input, result, deadlineLabel, sweep }: Props) {
             <li><span className="dot lose" /> Called the wrong way</li>
           </ul>
           <Curve input={input} result={result} deadlineLabel={deadlineLabel} />
+          <Facts input={input} result={result} />
           <p className="needs">
             {result.daysFor80 !== null && result.daysFor80 <= input.days
               ? `You have the runway: about ${count(result.enrolledFor80 ?? 0)} visitors in the test gives an 80% chance, and you should have ${count(result.controlN + result.variantN)}.`
-              : `For an 80% chance you need about ${count(result.enrolledFor80 ?? 0)} visitors in the test, ${result.daysFor80?.toFixed(1)} days at your traffic.`}{' '}
+              : `For an 80% chance you need about ${count(result.enrolledFor80 ?? 0)} visitors in the test, ${formatDuration(result.daysFor80 ?? 0)} at your traffic.`}{' '}
             If your change does nothing, {Math.round(result.noEffectOutcome.win * 100)} in 100 would still crown a false winner.
           </p>
         </div>

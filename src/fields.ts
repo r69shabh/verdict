@@ -46,17 +46,23 @@ export function isOwnForecast(arm: Arm, fields: Fields, example: Fields) {
   return arm === 'control' || NUMERIC.some((key) => fields[key].trim() !== example[key].trim());
 }
 
-const num = (value: string) => Number(value.replace(/[,\s%]/g, ''));
+export function parseNumber(raw: string, integer = false): number {
+  let s = raw.trim().replace(/[\s%\u00a0\u202f]/g, '');
+  if (/^-?\d{1,3}(,\d{3})+(\.\d+)?$/.test(s)) s = s.replace(/,/g, '');
+  else if (/^-?\d{1,3}(\.\d{3})+(,\d+)?$/.test(s) && (integer || s.includes(','))) s = s.replace(/\./g, '').replace(',', '.');
+  else if (/^-?\d*,\d+$/.test(s)) s = s.replace(',', '.');
+  return /^-?(\d+\.?\d*|\.\d+)(e[+-]?\d+)?$/i.test(s) ? Number(s) : NaN;
+}
 
 export function toInput(fields: Fields, now = Date.now()): ForecastInput | null {
   if (NUMERIC.some((key) => fields[key].trim() === '')) return null;
   return {
-    visitorsPerDay: num(fields.visitors),
-    baselineRate: num(fields.baseline) / 100,
-    relativeLift: num(fields.lift) / 100,
+    visitorsPerDay: parseNumber(fields.visitors, true),
+    baselineRate: parseNumber(fields.baseline) / 100,
+    relativeLift: parseNumber(fields.lift) / 100,
     days: (new Date(fields.deadline).getTime() - now) / 86400_000,
-    rolloutShare: num(fields.rollout) / 100,
-    variantShare: num(fields.split) / 100,
+    rolloutShare: parseNumber(fields.rollout) / 100,
+    variantShare: parseNumber(fields.split) / 100,
   };
 }
 
@@ -64,4 +70,13 @@ export function formatDeadline(value: string) {
   const time = new Date(value);
   if (Number.isNaN(time.getTime())) return 'your deadline';
   return new Intl.DateTimeFormat(undefined, { weekday: 'short', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' }).format(time);
+}
+
+export function formatDuration(days: number) {
+  const plural = (n: number, unit: string) => `${n.toLocaleString('en-US')} ${unit}${n === 1 ? '' : 's'}`;
+  if (days < 1) return plural(Math.max(1, Math.round(days * 24)), 'hour');
+  if (days < 14) return `${days.toFixed(1)} days`;
+  if (days < 60) return plural(Math.round(days), 'day');
+  if (days < 730) return plural(Math.round(days / 30.44), 'month');
+  return plural(Math.round(days / 365.25), 'year');
 }

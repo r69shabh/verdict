@@ -60,16 +60,31 @@ export function normalQuantile(p: number): number {
 
 export function validate(input: ForecastInput): InputError[] {
   const errors: InputError[] = [];
-  const check = (ok: boolean, field: keyof ForecastInput, message: string) => ok || errors.push({ field, message });
-  check(input.baselineRate > 0 && input.baselineRate < 1, 'baselineRate', 'Baseline must be between 0% and 100%.');
-  check(input.relativeLift > 0, 'relativeLift', 'Expected lift must be above 0%.');
-  check(input.baselineRate * (1 + input.relativeLift) < 1, 'relativeLift', 'Baseline × lift must stay under 100%.');
-  check(input.visitorsPerDay > 0, 'visitorsPerDay', 'Visitors per day must be above 0.');
-  check(input.days > 0, 'days', 'The deadline must be in the future.');
-  check(input.rolloutShare > 0 && input.rolloutShare <= 1, 'rolloutShare', 'Rollout must be between 1% and 100%.');
-  check(input.variantShare > 0 && input.variantShare < 1, 'variantShare', 'Variant share must be between 1% and 99%.');
+  const check = (field: keyof ForecastInput, ok: boolean, message: string) => {
+    if (!Number.isFinite(input[field] as number)) errors.push({ field, message: NOT_A_NUMBER[field] });
+    else if (!ok) errors.push({ field, message });
+  };
+  check('visitorsPerDay', input.visitorsPerDay > 0, 'Visitors per day must be above 0.');
+  check('baselineRate', input.baselineRate > 0 && input.baselineRate < 1, 'Today’s rate must be between 0% and 100%.');
+  check('relativeLift', input.relativeLift > 0, 'The expected lift must be above 0%.');
+  check('days', input.days > 0, 'The deadline must be in the future.');
+  check('rolloutShare', input.rolloutShare > 0 && input.rolloutShare <= 1, 'The share of visitors in the test must be between 1% and 100%.');
+  check('variantShare', input.variantShare > 0 && input.variantShare < 1, 'The share that sees the change must be between 1% and 99%.');
+  const ratesValid = !errors.some((e) => e.field === 'baselineRate' || e.field === 'relativeLift');
+  if (ratesValid && input.baselineRate * (1 + input.relativeLift) >= 1)
+    errors.push({ field: 'relativeLift', message: 'Today’s rate plus the lift must stay under 100%.' });
   return errors;
 }
+
+const NOT_A_NUMBER: Record<keyof ForecastInput, string> = {
+  visitorsPerDay: 'Visitors per day must be a number.',
+  baselineRate: 'Today’s rate must be a number.',
+  relativeLift: 'The expected lift must be a number.',
+  days: 'Pick a deadline.',
+  rolloutShare: 'The share of visitors in the test must be a number.',
+  variantShare: 'The share that sees the change must be a number.',
+  threshold: 'The threshold must be a number.',
+};
 
 function armSizes(input: ForecastInput, days: number) {
   const enrolled = input.visitorsPerDay * days * input.rolloutShare;
@@ -137,6 +152,26 @@ export function forecast(input: ForecastInput): Forecast {
     daysFor80,
     curve,
   };
+}
+
+export function detectableLift(input: ForecastInput, power = TARGET_POWER): number | null {
+  const p0 = input.baselineRate;
+  const reaches = (lift: number) => {
+    const p1 = p0 * (1 + lift);
+    if (!clearsFloorAt(input, input.days, p1)) return false;
+    const { controlN, variantN } = armSizes(input, input.days);
+    const sigma = Math.sqrt((p0 * (1 - p0)) / controlN + (p1 * (1 - p1)) / variantN);
+    return normalCdf((p1 - p0) / sigma - normalQuantile(input.threshold ?? FLAGSMITH_THRESHOLD)) >= power;
+  };
+  let hi = (1 - 1e-6) / p0 - 1;
+  if (!reaches(hi)) return null;
+  let lo = 0;
+  for (let i = 0; i < 60; i++) {
+    const mid = (lo + hi) / 2;
+    if (reaches(mid)) hi = mid;
+    else lo = mid;
+  }
+  return hi;
 }
 
 export function outcomeAfter(input: ForecastInput, days: number): Outcome {

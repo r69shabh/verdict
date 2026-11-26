@@ -14,6 +14,8 @@ Everything that touched the experiments, in order. Times in UTC (IST = UTC+5:30)
 | 2026-11-26 20:59 | Sim AB #784 started; 2,000 simulated visitors sent (seed 11, planted 30% → 37.5%), ledger `sim-ledgers/sim_ab_s11_mwy1ct4c.json`. |
 | 2026-11-26 21:00 | Sim AA and Sim AB results refreshed and saved in `results/`. `pnpm lab verify` confirms every exposure and conversion count in Flagsmith equals the simulator ledger. Sim AA: no winner (`forecast_own` chance to win 47.9%). Sim AB: planted +25%, Flagsmith estimates +24.8% [+9.2%, +40.3%], 99.9% chance to win. |
 | 2026-11-26 21:02 | Production results refreshed: 0 exposures (link not shared yet). |
+| 2026-11-26 21:24 | Generated Verdict CLI commands run for real against the Smoke environment (scratch flag `cli_check`, experiment #792): flag, variant, metric, experiment and start all succeeded. Scratch experiment completed and deleted, metric and flag deleted. |
+| 2026-11-26 21:28 | Production results: still 0 exposures. Deployed version `de364dc2` (fixes listed in EXPERIMENT.md Amendments). |
 
 ## Disclosures
 
