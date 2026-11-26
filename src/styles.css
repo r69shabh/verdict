@@ -736,3 +736,47 @@ a:hover {
   background: rgb(71 86 111 / 0.12);
   color: var(--ink-2);
 }
+
+@media (max-width: 700px) {
+  .lab-table {
+    min-width: 0;
+  }
+
+  .lab-table thead {
+    display: none;
+  }
+
+  .lab-table tr {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px 16px;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .lab-table tbody th,
+  .lab-table td {
+    padding: 0;
+    border: 0;
+  }
+
+  .lab-table tbody th,
+  .lab-table td.lab-interval {
+    grid-column: 1 / -1;
+  }
+
+  .lab-table td::before {
+    content: attr(data-label);
+    display: block;
+    margin-bottom: 2px;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--ink-2);
+  }
+
+  .lab-interval svg {
+    width: 100%;
+    max-width: 320px;
+    height: auto;
+  }
+}

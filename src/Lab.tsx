@@ -122,14 +122,14 @@ function Environment({ name, about, ledgerMode }: { name: string; about: string;
                     <code>{meta?.metric_name}</code>
                     <span>{ROLE[meta?.metric_name ?? ''] ?? ''}</span>
                   </th>
-                  <td>{pct(c.sum / (c.n || 1))}<span>{c.sum}/{c.n}</span></td>
-                  <td>{pct(v.sum / (v.n || 1))}<span>{v.sum}/{v.n}</span></td>
-                  <td className="lab-interval">
+                  <td data-label="Empty form">{pct(c.sum / (c.n || 1))}<span>{c.sum}/{c.n}</span></td>
+                  <td data-label="Worked example">{pct(v.sum / (v.n || 1))}<span>{v.sum}/{v.n}</span></td>
+                  <td className="lab-interval" data-label="Lift and 95% interval">
                     <Interval inf={inf} domain={domain} planted={ledger?.mode === 'ab' && meta?.metric_name === 'forecast_own' ? ledger.lift : undefined} />
                     <span>{inf ? `${signed(inf.lift)} [${signed(inf.ci_low)}, ${signed(inf.ci_high)}]` : '—'}</span>
                   </td>
-                  <td>{inf ? pct(inf.chance_to_win) : '—'}</td>
-                  <td><span className={`tone ${read.tone}`}>{read.label}</span></td>
+                  <td data-label="Chance to beat control">{inf ? pct(inf.chance_to_win) : '—'}</td>
+                  <td data-label="Reading"><span className={`tone ${read.tone}`}>{read.label}</span></td>
                 </tr>
               );
             })}
