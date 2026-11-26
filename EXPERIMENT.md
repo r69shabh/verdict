@@ -103,3 +103,6 @@ every visitor gets the chosen version on their next visit.
 - **2026-11-26 21:32 UTC, before the first Production exposure** (results at 21:28 showed 0 exposures; the link had not
   been shared). Added a "See the results so far" link to the footer of both arms, pointing to a `/lab` page of saved
   result snapshots. Identical in both arms; no change to the hypothesis, arms, metrics or decision rule.
+- **2026-11-26 21:38 UTC, before the first Production exposure** (results at 21:37 showed 0 exposures). Browsers that
+  identify as automated (`navigator.webdriver`, or a bot/crawler/preview/headless user agent) are no longer enrolled:
+  they see the empty form and send nothing. Decided before assignment, so it treats both arms the same.

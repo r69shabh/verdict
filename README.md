@@ -93,7 +93,7 @@ gitignored `.env.production.local`:
 
 ```sh
 echo "VITE_FLAGSMITH_ENVIRONMENT_KEY=<client-side key>" > .env.production.local
-pnpm deploy                               # build + wrangler deploy (or serve dist/ anywhere static)
+pnpm ship                               # build + wrangler deploy (or serve dist/ anywhere static)
 pnpm release                              # refresh result snapshots for /lab, then build + deploy
 ```
 

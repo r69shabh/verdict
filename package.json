@@ -12,10 +12,10 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "preview": "vite preview",
-    "deploy": "pnpm build && wrangler deploy",
     "simulate": "node scripts/simulate.mjs",
     "lab": "node scripts/lab.mjs",
-    "release": "node scripts/lab.mjs snapshot && pnpm build && wrangler deploy"
+    "release": "node scripts/lab.mjs snapshot && pnpm ship",
+    "ship": "pnpm build && wrangler deploy"
   },
   "dependencies": {
     "@flagsmith/flagsmith": "12.5.0",

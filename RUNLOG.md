@@ -17,6 +17,7 @@ Everything that touched the experiments, in order. Times in UTC (IST = UTC+5:30)
 | 2026-11-26 21:24 | Generated Verdict CLI commands run for real against the Smoke environment (scratch flag `cli_check`, experiment #792): flag, variant, metric, experiment and start all succeeded. Scratch experiment completed and deleted, metric and flag deleted. |
 | 2026-11-26 21:28 | Production results: still 0 exposures. Deployed version `de364dc2` (fixes listed in EXPERIMENT.md Amendments). |
 | 2026-11-26 21:32 | `pnpm release`: snapshots for all three environments (Production refresh rate-limited; 21:28 snapshot reused, 0 exposures), deployed version `6ad4e736` with the `/lab` results page and footer link. |
+| 2026-11-26 21:38 | Production results: 0 exposures at 21:37. Deployed the automated-browser exclusion (see EXPERIMENT.md Amendments). |
 
 ## Disclosures
 

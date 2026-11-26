@@ -40,6 +40,10 @@ function timeout(ms: number) {
   return new Promise<never>((_, reject) => setTimeout(() => reject(new Error(`Flagsmith did not answer within ${ms} ms`)), ms));
 }
 
+function isAutomated() {
+  return navigator.webdriver || /bot|crawl|spider|slurp|preview|headless|lighthouse|pagespeed/i.test(navigator.userAgent);
+}
+
 function previewArm(): Arm | null {
   const value = new URLSearchParams(location.search).get('preview');
   return value === 'control' || value === 'worked_example' ? value : null;
@@ -55,6 +59,7 @@ export function assign(): Promise<Assignment> {
 async function resolveAssignment(): Promise<Assignment> {
   const preview = previewArm();
   if (preview) return { arm: preview, mode: 'preview', inExperiment: false };
+  if (isAutomated()) return { arm: 'control', mode: 'offline', inExperiment: false };
   if (!ENVIRONMENT_KEY) return { arm: 'control', mode: 'offline', inExperiment: false };
   try {
     await Promise.race([
