@@ -9,7 +9,7 @@ const VARIANT = 'worked_example';
 const METRICS = [
   { name: 'forecast_own', direction: 'up', expected: 'increase', description: 'Ran a forecast with their own numbers (primary)' },
   { name: 'plan_copied', direction: 'up', expected: 'not_decrease', description: 'Copied the pre-registration or CLI plan (guardrail)' },
-  { name: 'forecast_run', direction: 'informational', expected: 'increase', description: 'Pressed Forecast, including on the untouched example' },
+  { name: 'forecast_run', direction: 'informational', expected: 'increase', description: 'Pressed Forecast on a complete form, including the untouched example' },
 ];
 const NAME = 'First screen: worked example vs empty form';
 const HYPOTHESIS = readFileSync(new URL('../EXPERIMENT.md', import.meta.url), 'utf8').match(/## Hypothesis\n+([^\n]+)/)?.[1]?.trim();
@@ -22,8 +22,8 @@ const opt = (name) => {
 const has = (name) => rest.includes(`--${name}`);
 const project = opt('project') ?? process.env.FLAGSMITH_PROJECT ?? 'Verdict';
 
-function cli(args, input) {
-  const out = execFileSync('flagsmith', args, { input, encoding: 'utf8', stdio: ['pipe', 'pipe', 'inherit'] });
+function cli(args, input, quiet = false) {
+  const out = execFileSync('flagsmith', args, { input, encoding: 'utf8', stdio: ['pipe', 'pipe', quiet ? 'pipe' : 'inherit'] });
   return out.trim() ? JSON.parse(out) : null;
 }
 const api = (path, method = 'GET', body) =>
@@ -43,8 +43,8 @@ function environment() {
 }
 
 function feature() {
-  const f = cli(['feature', 'get', FLAG, '--project', project, '--json']);
-  const option = (f.multivariate_options ?? []).find((o) => o.key === VARIANT || o.string_value === VARIANT || o.value === VARIANT);
+  const f = cli(['feature', 'get', FLAG, '--project', project, '--json'], undefined, true);
+  const option = (f.variants ?? f.multivariate_options ?? []).find((o) => o.key === VARIANT || o.value === VARIANT);
   return { id: f.id, variantId: option?.id, raw: f };
 }
 

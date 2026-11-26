@@ -41,11 +41,11 @@ in both), the results panel, and the plan output.
 |---|---|---|---|
 | Forecast with own numbers | `forecast_own` | primary | increase |
 | Plan copied | `plan_copied` | guardrail | should not decrease |
-| Pressed Forecast | `forecast_run` | informational | n/a |
+| Forecast shown | `forecast_run` | informational | n/a |
 
 - `forecast_own` fires once per visitor when a forecast is shown for inputs that are not the
   untouched example. In the control every forecast is the visitor's own, because there is no example.
-- `forecast_run` fires when Forecast is pressed, including on the untouched example. It is reported
+- `forecast_run` fires when Forecast is pressed on a complete form, including the untouched example. It is reported
   because it is the metric a naive version of this test would use, and it is biased toward the
   variant: pressing Forecast on the example costs one click.
 - `plan_copied` fires when a visitor copies the pre-registration or the CLI commands.

@@ -45,7 +45,14 @@ function previewArm(): Arm | null {
   return value === 'control' || value === 'worked_example' ? value : null;
 }
 
-export async function assign(): Promise<Assignment> {
+let assignment: Promise<Assignment> | null = null;
+
+export function assign(): Promise<Assignment> {
+  assignment ??= resolveAssignment();
+  return assignment;
+}
+
+async function resolveAssignment(): Promise<Assignment> {
   const preview = previewArm();
   if (preview) return { arm: preview, mode: 'preview', inExperiment: false };
   if (!ENVIRONMENT_KEY) return { arm: 'control', mode: 'offline', inExperiment: false };

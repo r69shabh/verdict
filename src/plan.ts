@@ -64,7 +64,7 @@ echo '{"name":"${names.event}","aggregation":"occurrence","direction":"up","defi
 
 # 3. The experiment, created but not started (starting locks the flag)
 FEATURE_ID=$(flagsmith feature get ${names.flag} --jq '.id')
-VARIANT_ID=$(flagsmith feature get ${names.flag} --jq '.multivariate_options[0].id')
+VARIANT_ID=$(flagsmith feature get ${names.flag} --jq '.variants[0].id')
 METRIC_ID=$(flagsmith api api/v1/environments/$ENV/experiment-metrics/ --jq '.results[] | select(.name=="${names.event}") | .id')
 cat <<JSON | flagsmith api api/v1/environments/$ENV/experiments/ --input -
 {"feature": $FEATURE_ID, "name": "${names.flag}", "hypothesis": "${names.change.replace(/"/g, "'")}",
