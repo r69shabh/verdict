@@ -2,7 +2,7 @@
 // Runs the Verdict experiment through the Flagsmith CLI (v2+). Credentials come from `flagsmith login`
 // or FLAGSMITH_API_KEY; nothing secret is read or written by this script.
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 
 const FLAG = 'first_screen';
 const VARIANT = 'worked_example';
@@ -64,6 +64,44 @@ function save(env, kind, data) {
   const file = `results/${env.name.toLowerCase().replace(/\W+/g, '-')}-${kind}-${stamp}.json`;
   writeFileSync(file, JSON.stringify(data, null, 2) + '\n');
   return file;
+}
+
+
+const pct = (x) => `${(100 * x).toFixed(1)}%`;
+const signed = (x) => `${x >= 0 ? '+' : ''}${(100 * x).toFixed(1)}%`;
+
+function summarise(snapshot, ledger) {
+  const names = Object.fromEntries((snapshot.experiment.metrics ?? []).map((m) => [m.metric, m.metric_name]));
+  const payload = snapshot.results?.results?.payload ?? snapshot.results?.payload;
+  if (!payload) return console.log('No computed results yet. Refresh and try again in a minute.');
+  const exposures = payload.exposures_timeseries?.points?.reduce((acc, p) => {
+    for (const [arm, n] of Object.entries(p.new_identities)) acc[arm] = (acc[arm] ?? 0) + n;
+    return acc;
+  }, {});
+  console.log(`\n${snapshot.environment}: experiment #${snapshot.experiment.id} (${snapshot.experiment.status}), as of ${snapshot.results?.results?.as_of ?? '?'}`);
+  console.log(`  exposures ${JSON.stringify(exposures)}${ledger ? `  ledger ${JSON.stringify(Object.fromEntries(Object.entries(ledger.arms).map(([k, v]) => [k, v.exposed])))}` : ''}  SRM p-value ${payload.srm_p_value ?? 'n/a'}`);
+  let mismatches = 0;
+  for (const metric of payload.metrics) {
+    const name = names[metric.metric_id] ?? metric.metric_id;
+    const c = metric.variants.control ?? { sum: 0, n: 0 };
+    const v = metric.variants[VARIANT] ?? { sum: 0, n: 0 };
+    const inf = metric.inference?.[VARIANT];
+    const verdict = !inf ? 'collecting data' : inf.chance_to_win >= 0.95 ? 'WINNING' : inf.chance_to_win <= 0.05 ? 'LOSING' : 'inconclusive';
+    let check = '';
+    if (ledger) {
+      const ok = ['control', VARIANT].every((arm) => metric.variants[arm]?.sum === ledger.arms[arm][name] && metric.variants[arm]?.n === ledger.arms[arm].exposed);
+      if (!ok) mismatches++;
+      check = ok ? '  ledger: exact match' : '  ledger: MISMATCH';
+    }
+    console.log(`  ${String(name).padEnd(13)} control ${c.sum}/${c.n} (${pct(c.sum / (c.n || 1))})  ${VARIANT} ${v.sum}/${v.n} (${pct(v.sum / (v.n || 1))})  ` +
+      (inf ? `lift ${signed(inf.lift)} [${signed(inf.ci_low)}, ${signed(inf.ci_high)}]  chance to win ${pct(inf.chance_to_win)}  ${verdict}` : verdict) + check);
+  }
+  if (ledger) console.log(mismatches ? `  ${mismatches} metric(s) differ from the ledger` : '  every count matches the simulator ledger');
+}
+
+function latest(prefix) {
+  const files = readdirSync('results').filter((f) => f.startsWith(prefix)).sort();
+  return files.length ? `results/${files.at(-1)}` : null;
 }
 
 const commands = {
@@ -153,8 +191,16 @@ const commands = {
       exposures: api(`environments/${env.key}/experiments/${exp.id}/exposures/`),
       results: api(`environments/${env.key}/experiments/${exp.id}/results/`),
     };
-    console.log(JSON.stringify(snapshot.results, null, 2).slice(0, 4000));
-    console.log(`saved ${save(env, 'results', snapshot)}`);
+    summarise(snapshot);
+    console.log(`  saved ${save(env, 'results', snapshot)}`);
+  },
+
+  verify() {
+    const env = environment();
+    const file = latest(`${env.name.toLowerCase().replace(/\W+/g, '-')}-results-`) ?? fail(`No saved results for ${env.name}. Run results first.`);
+    const ledgerFile = opt('ledger') ?? fail('Pass --ledger sim-ledgers/<run>.json');
+    summarise(JSON.parse(readFileSync(file, 'utf8')), JSON.parse(readFileSync(ledgerFile, 'utf8')));
+    console.log(`  (${file} vs ${ledgerFile})`);
   },
 
   complete() {
@@ -178,6 +224,7 @@ if (!commands[command]) {
   setup --env <e>              create the three metrics and the experiment (not started)
   start --env <e>              start the experiment (locks the flag)
   results --env <e> [--refresh]  snapshot experiment, exposures and results to results/
+  verify --env <e> --ledger <file>   compare the latest saved results with a simulator ledger
   complete --env <e> --decision control|variant|disable --yes   end it and roll out the decision`);
   process.exit(command ? 1 : 0);
 }
