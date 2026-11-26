@@ -1,0 +1,34 @@
+{
+  "runId": "sim_ab_s11_mwy1ct4c",
+  "mode": "ab",
+  "seed": 11,
+  "visitors": 2000,
+  "controlRate": 0.3,
+  "lift": 0.25,
+  "model": {
+    "RUN_WITHOUT_OWN": {
+      "control": 0.06,
+      "worked_example": 0.25
+    },
+    "COPY_GIVEN_OWN": 0.35
+  },
+  "dryRun": false,
+  "startedAt": "2026-11-26T20:59:32.076Z",
+  "notEnrolled": 0,
+  "errors": 0,
+  "arms": {
+    "control": {
+      "exposed": 981,
+      "forecast_own": 294,
+      "forecast_run": 328,
+      "plan_copied": 102
+    },
+    "worked_example": {
+      "exposed": 1019,
+      "forecast_own": 381,
+      "forecast_run": 544,
+      "plan_copied": 137
+    }
+  },
+  "finishedAt": "2026-11-26T20:59:57.846Z"
+}

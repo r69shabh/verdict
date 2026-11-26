@@ -1,0 +1,234 @@
+{
+  "environment": "Sim AB",
+  "taken_at": "2026-11-26T21:00:34.214Z",
+  "experiment": {
+    "id": 784,
+    "feature": {
+      "id": 306269,
+      "name": "first_screen",
+      "type": "MULTIVARIATE",
+      "initial_value": "control",
+      "multivariate_options": [
+        {
+          "id": 37505,
+          "uuid": "ae0075a3-62e4-47ae-b732-2281d405f75c",
+          "type": "unicode",
+          "integer_value": null,
+          "string_value": "worked_example",
+          "boolean_value": null,
+          "default_percentage_allocation": 0,
+          "key": "worked_example"
+        }
+      ]
+    },
+    "name": "First screen: worked example vs empty form",
+    "hypothesis": "Pre-filling the planner with a worked example will raise the share of visitors who forecast their own numbers (forecast_own) by at least 25% relative to the empty form, during 27–29 November 2026.",
+    "status": "running",
+    "metrics": [
+      {
+        "id": 894,
+        "metric": 814,
+        "metric_name": "forecast_own",
+        "aggregation": "occurrence",
+        "direction": "up",
+        "expected_direction": "increase",
+        "created_at": "2026-11-26T20:54:55.984249Z"
+      },
+      {
+        "id": 895,
+        "metric": 815,
+        "metric_name": "plan_copied",
+        "aggregation": "occurrence",
+        "direction": "up",
+        "expected_direction": "not_decrease",
+        "created_at": "2026-11-26T20:54:55.984261Z"
+      },
+      {
+        "id": 896,
+        "metric": 816,
+        "metric_name": "forecast_run",
+        "aggregation": "occurrence",
+        "direction": "informational",
+        "expected_direction": "increase",
+        "created_at": "2026-11-26T20:54:55.984268Z"
+      }
+    ],
+    "experiment_rollout": {
+      "enabled": true,
+      "rollout_percentage": 100,
+      "feature_state_value": {
+        "type": "string",
+        "value": "control"
+      },
+      "multivariate_feature_state_values": [
+        {
+          "multivariate_feature_option": 37505,
+          "percentage_allocation": 50
+        }
+      ],
+      "audience": {
+        "match": "any",
+        "segments": []
+      }
+    },
+    "created_at": "2026-11-26T20:54:55.982238Z",
+    "updated_at": "2026-11-26T20:59:07.846522Z",
+    "started_at": "2026-11-26T20:59:07.843359Z",
+    "ended_at": null,
+    "rollout_decision": null,
+    "rollout_variant": null
+  },
+  "exposures": {
+    "exposures": {
+      "as_of": "2026-11-26T21:00:33.942018Z",
+      "last_error_at": null,
+      "refresh_requested_at": "2026-11-26T21:00:33.864938Z",
+      "payload": {
+        "timeseries": {
+          "points": [
+            {
+              "bucket": "2026-11-26T20:00:00+00:00",
+              "new_identities": {
+                "control": 981,
+                "worked_example": 1019
+              }
+            }
+          ],
+          "granularity": "hour"
+        },
+        "excluded_identities": 0
+      },
+      "is_final": false
+    }
+  },
+  "results": {
+    "results": {
+      "as_of": "2026-11-26T21:00:34.245118Z",
+      "last_error_at": null,
+      "refresh_requested_at": "2026-11-26T21:00:34.133145Z",
+      "payload": {
+        "metrics": [
+          {
+            "variants": {
+              "control": {
+                "n": 981,
+                "sum": 294,
+                "sum_squares": 294
+              },
+              "worked_example": {
+                "n": 1019,
+                "sum": 381,
+                "sum_squares": 381
+              }
+            },
+            "inference": {
+              "worked_example": {
+                "lift": 0.2475916765135888,
+                "ci_low": 0.09237501822885552,
+                "ci_high": 0.40280833479832207,
+                "chance_to_win": 0.9991152239212784
+              }
+            },
+            "metric_id": 814,
+            "conversions_timeseries": {
+              "points": [
+                {
+                  "bucket": "2026-11-26T20:00:00+00:00",
+                  "converted_identities": {
+                    "control": 294,
+                    "worked_example": 381
+                  }
+                }
+              ],
+              "granularity": "hour"
+            }
+          },
+          {
+            "variants": {
+              "control": {
+                "n": 981,
+                "sum": 102,
+                "sum_squares": 102
+              },
+              "worked_example": {
+                "n": 1019,
+                "sum": 137,
+                "sum_squares": 137
+              }
+            },
+            "inference": {
+              "worked_example": {
+                "lift": 0.2930497027073834,
+                "ci_low": -0.01855593101996783,
+                "ci_high": 0.6046553364347347,
+                "chance_to_win": 0.9673536893117567
+              }
+            },
+            "metric_id": 815,
+            "conversions_timeseries": {
+              "points": [
+                {
+                  "bucket": "2026-11-26T20:00:00+00:00",
+                  "converted_identities": {
+                    "control": 102,
+                    "worked_example": 137
+                  }
+                }
+              ],
+              "granularity": "hour"
+            }
+          },
+          {
+            "variants": {
+              "control": {
+                "n": 981,
+                "sum": 328,
+                "sum_squares": 328
+              },
+              "worked_example": {
+                "n": 1019,
+                "sum": 544,
+                "sum_squares": 544
+              }
+            },
+            "inference": {
+              "worked_example": {
+                "lift": 0.5966873309557431,
+                "ci_low": 0.42847523182356956,
+                "ci_high": 0.7648994300879166,
+                "chance_to_win": 0.999999999998205
+              }
+            },
+            "metric_id": 816,
+            "conversions_timeseries": {
+              "points": [
+                {
+                  "bucket": "2026-11-26T20:00:00+00:00",
+                  "converted_identities": {
+                    "control": 328,
+                    "worked_example": 544
+                  }
+                }
+              ],
+              "granularity": "hour"
+            }
+          }
+        ],
+        "srm_p_value": null,
+        "exposures_timeseries": {
+          "points": [
+            {
+              "bucket": "2026-11-26T20:00:00+00:00",
+              "new_identities": {
+                "control": 981,
+                "worked_example": 1019
+              }
+            }
+          ],
+          "granularity": "hour"
+        }
+      },
+      "is_final": false
+    }
+  }
+}

@@ -69,7 +69,7 @@ async function resolveAssignment(): Promise<Assignment> {
       timeout(4000),
     ]);
     const flag = flagsmith.getExperimentFlag(FLAG);
-    live = true;
+    live = Boolean(flag?.experiment?.inExperiment);
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'hidden') void flagsmith.flushEvents();
     });

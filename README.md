@@ -35,7 +35,7 @@ Three Flagsmith environments keep real and scripted traffic apart:
 The simulator writes a ground-truth ledger of every exposure and event it sent
 ([sim-ledgers/](sim-ledgers/)), so Flagsmith's counts can be checked against what really happened.
 
-Results: see [RESULTS.md](RESULTS.md) (written at the end of the hackathon from saved snapshots in [results/](results/)).
+Every action on the experiments is in [RUNLOG.md](RUNLOG.md). Results: see [RESULTS.md](RESULTS.md) (written at the end of the hackathon from saved snapshots in [results/](results/)).
 
 ## How Flagsmith is used
 

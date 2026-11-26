@@ -7,5 +7,3 @@ dist/
 *.local
 .DS_Store
 flagsmith.env
-sim-ledgers/*.json
-!sim-ledgers/.gitkeep
