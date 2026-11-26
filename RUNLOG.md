@@ -18,6 +18,7 @@ Everything that touched the experiments, in order. Times in UTC (IST = UTC+5:30)
 | 2026-11-26 21:28 | Production results: still 0 exposures. Deployed version `de364dc2` (fixes listed in EXPERIMENT.md Amendments). |
 | 2026-11-26 21:32 | `pnpm release`: snapshots for all three environments (Production refresh rate-limited; 21:28 snapshot reused, 0 exposures), deployed version `6ad4e736` with the `/lab` results page and footer link. |
 | 2026-11-26 21:37 | Production results: 0 exposures at 21:37. Deployed the automated-browser exclusion (see EXPERIMENT.md Amendments). |
+| 2026-11-26 21:39 | Deployed `93e0acd4`: `/lab` page layout for small screens only (not part of either arm's first screen). |
 
 ## Disclosures
 
