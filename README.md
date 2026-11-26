@@ -5,7 +5,7 @@ rate, expected lift and deadline, and tells you how likely Flagsmith Experimenta
 winner in time, how much traffic you would need for an 80% chance, and gives you a pre-registration
 and the Flagsmith CLI commands to set the experiment up.
 
-Live: https://verdict.rishabhgusain-6.workers.dev · Pre-registration: [EXPERIMENT.md](EXPERIMENT.md)
+Live: https://verdict.rishabhgusain-6.workers.dev · Results so far: [/lab](https://verdict.rishabhgusain-6.workers.dev/lab) · Pre-registration: [EXPERIMENT.md](EXPERIMENT.md)
 
 Built for [Toggle Wars](https://www.wemakedevs.org/hackathons/flagsmith), Track 01: Test Something Real.
 
@@ -88,11 +88,13 @@ pnpm lab setup --env Production           # metrics + experiment, not started
 pnpm lab start --env Production
 ```
 
-Build the app against an environment with its client-side key (public by design):
+Build the app against an environment with its client-side key (public by design), for example in a
+gitignored `.env.production.local`:
 
 ```sh
-VITE_FLAGSMITH_ENVIRONMENT_KEY=<client-side key> pnpm build
-pnpm exec wrangler deploy                 # or serve dist/ anywhere static
+echo "VITE_FLAGSMITH_ENVIRONMENT_KEY=<client-side key>" > .env.production.local
+pnpm deploy                               # build + wrangler deploy (or serve dist/ anywhere static)
+pnpm release                              # refresh result snapshots for /lab, then build + deploy
 ```
 
 ### Send simulated traffic (Sim environments only)

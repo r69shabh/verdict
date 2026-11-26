@@ -59,10 +59,12 @@ function fail(message) {
 }
 
 function save(env, kind, data) {
-  mkdirSync('results', { recursive: true });
+  mkdirSync('results/latest', { recursive: true });
+  const slug = env.name.toLowerCase().replace(/\W+/g, '-');
   const stamp = new Date().toISOString().replace(/[:.]/g, '-');
-  const file = `results/${env.name.toLowerCase().replace(/\W+/g, '-')}-${kind}-${stamp}.json`;
+  const file = `results/${slug}-${kind}-${stamp}.json`;
   writeFileSync(file, JSON.stringify(data, null, 2) + '\n');
+  writeFileSync(`results/latest/${slug}.json`, JSON.stringify(data, null, 2) + '\n');
   return file;
 }
 
@@ -172,6 +174,13 @@ const commands = {
     console.log(`${env.name}: experiment #${exp.id} is ${experimentFor(env).status}`);
   },
 
+  snapshot() {
+    for (const name of ['Production', 'Sim AA', 'Sim AB']) {
+      rest.splice(0, rest.length, '--env', name, '--refresh');
+      commands.results();
+    }
+  },
+
   results() {
     const env = environment();
     const exp = experimentFor(env) ?? fail(`${env.name}: no experiment yet.`);
@@ -224,6 +233,7 @@ if (!commands[command]) {
   setup --env <e>              create the three metrics and the experiment (not started)
   start --env <e>              start the experiment (locks the flag)
   results --env <e> [--refresh]  snapshot experiment, exposures and results to results/
+  snapshot                     refresh and save results for Production, Sim AA and Sim AB
   verify --env <e> --ledger <file>   compare the latest saved results with a simulator ledger
   complete --env <e> --decision control|variant|disable --yes   end it and roll out the decision`);
   process.exit(command ? 1 : 0);

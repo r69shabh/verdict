@@ -6,7 +6,8 @@ Deadline: Sun 29 Nov 2026, 20:00 IST (target submit 17:00 IST). Hackathon rules:
 ## Commands (Node 22, pnpm 12.3.4)
 - `pnpm install --frozen-lockfile`
 - `pnpm dev` / `pnpm test` / `pnpm typecheck` / `pnpm build`
-- `pnpm deploy` — builds and deploys static assets to the `verdict` Worker on workers.dev (owner approved).
+- `pnpm deploy` — builds and deploys static assets to the `verdict` Worker on workers.dev (owner approved). Production key comes from gitignored `.env.production.local`.
+- `pnpm release` — refresh result snapshots (results/latest/ feeds /lab), then build + deploy. Log every deploy in RUNLOG.md.
 - `pnpm simulate -- --help` — seeded traffic simulator against a Sim environment (needs FLAGSMITH_SIM_ENVIRONMENT_KEY).
 - `pnpm lab` — operate the experiment via the Flagsmith CLI (envs, warehouse, flag, setup, start, results, complete).
 

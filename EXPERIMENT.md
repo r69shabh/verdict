@@ -100,3 +100,6 @@ every visitor gets the chosen version on their next visit.
   results panel adds first-results time, 80% date and smallest detectable lift; the generated CLI commands no longer
   pass visitor text through the shell; a stronger keyboard focus style on the blanks; link-preview metadata. The
   hypothesis, arms, metrics, event firing and decision rule are unchanged.
+- **2026-11-26 21:32 UTC, before the first Production exposure** (results at 21:28 showed 0 exposures; the link had not
+  been shared). Added a "See the results so far" link to the footer of both arms, pointing to a `/lab` page of saved
+  result snapshots. Identical in both arms; no change to the hypothesis, arms, metrics or decision rule.

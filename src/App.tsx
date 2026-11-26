@@ -62,6 +62,7 @@ function Disclosure({ assignment }: { assignment: Assignment | null }) {
         counts who goes on to forecast their own numbers. {status}
       </p>
       <p>
+        <a href="/lab">See the results so far</a>
         <a href={`${REPO}/blob/main/EXPERIMENT.md`}>Read the pre-registration</a>
         <a href={REPO}>Source on GitHub</a>
         <span>Visits carry a random ID and nothing else.</span>

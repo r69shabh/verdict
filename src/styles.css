@@ -585,3 +585,154 @@ a:hover {
     text-align: left;
   }
 }
+
+.lab .masthead h1 {
+  font-size: clamp(1.25rem, 1rem + 1vw, 1.75rem);
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+.lab .wordmark {
+  text-decoration: none;
+}
+
+.lab-intro {
+  max-width: 70ch;
+  margin: 0 0 8px;
+  font-size: 1.0625rem;
+  color: var(--ink-2);
+}
+
+.lab-env {
+  margin-top: clamp(36px, 5vw, 56px);
+  padding-top: 28px;
+  border-top: 1px solid var(--rule);
+}
+
+.lab-env-head h2 {
+  margin: 0 0 6px;
+  font-size: 1.5rem;
+  font-weight: 750;
+  letter-spacing: -0.02em;
+}
+
+.lab-env-head p {
+  max-width: 70ch;
+  margin: 0 0 4px;
+}
+
+.lab-meta,
+.lab-ledger {
+  font-size: 0.9375rem;
+  color: var(--ink-2);
+}
+
+.lab-exposures {
+  margin: 18px 0;
+  font-size: 1.0625rem;
+}
+
+.lab-empty {
+  padding: 18px 20px;
+  border-radius: 12px;
+  background: var(--sheet);
+  color: var(--ink-2);
+}
+
+.lab-scroll {
+  overflow-x: auto;
+  scrollbar-color: var(--rule) transparent;
+}
+
+.lab-table {
+  width: 100%;
+  min-width: 760px;
+  border-collapse: collapse;
+  font-size: 0.9375rem;
+}
+
+.lab-table thead th {
+  padding: 0 12px 10px 0;
+  text-align: left;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--ink-2);
+  border-bottom: 1px solid var(--rule);
+}
+
+.lab-table tbody th,
+.lab-table td {
+  padding: 14px 12px 14px 0;
+  text-align: left;
+  vertical-align: middle;
+  border-bottom: 1px solid var(--rule);
+  font-weight: 600;
+}
+
+.lab-table tbody th code {
+  display: block;
+  font: 600 0.9375rem ui-monospace, 'SF Mono', Menlo, monospace;
+}
+
+.lab-table tbody th span,
+.lab-table td > span:not(.tone) {
+  display: block;
+  margin-top: 2px;
+  font-size: 0.8125rem;
+  font-weight: 450;
+  color: var(--ink-2);
+}
+
+.lab-interval svg {
+  display: block;
+  width: 240px;
+  height: 28px;
+}
+
+.interval-zero {
+  stroke: var(--ink-2);
+  stroke-dasharray: 2 3;
+}
+
+.interval-planted {
+  stroke: var(--error);
+  stroke-width: 2;
+}
+
+.interval-bar {
+  stroke: var(--cobalt);
+  stroke-width: 4;
+  stroke-linecap: round;
+}
+
+.interval-point {
+  fill: var(--night);
+  stroke: var(--sheet);
+  stroke-width: 2;
+}
+
+.tone {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.8125rem;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.tone.good {
+  background: rgb(39 71 216 / 0.12);
+  color: var(--cobalt);
+}
+
+.tone.bad {
+  background: rgb(180 54 26 / 0.12);
+  color: var(--error);
+}
+
+.tone.quiet {
+  background: rgb(71 86 111 / 0.12);
+  color: var(--ink-2);
+}
