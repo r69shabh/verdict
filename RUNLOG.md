@@ -21,6 +21,7 @@ Everything that touched the experiments, in order. Times in UTC (IST = UTC+5:30)
 | 2026-11-26 21:39 | Deployed `93e0acd4`: `/lab` page layout for small screens only (not part of either arm's first screen). |
 | 2026-11-27 06:46 | Production results after a machine restart: 0 exposures. |
 | 2026-11-27 06:53 | Production results: 0 exposures at 06:53. Deployed `/check`, footer and plan links, and the forecast engine switched to Flagsmith's exact statistic (see Amendments). |
+| 2026-11-27 06:57 | Deployed `05f4c8db`: security headers (CSP allowing only Flagsmith's API hosts, nosniff, referrer and permissions policies), `/lab` decision boxes. Verified on the live site: flags and events endpoints reachable, no CSP violations. No change to either arm. |
 
 ## Disclosures
 

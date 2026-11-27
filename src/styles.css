@@ -796,3 +796,15 @@ a:hover {
 .link:hover {
   color: var(--ink);
 }
+
+.lab-decision {
+  margin: 0 0 18px;
+  padding: 14px 18px;
+  border-radius: 12px;
+  background: var(--sheet);
+  max-width: 80ch;
+}
+
+.lab-decision.ship {
+  background: rgb(39 71 216 / 0.1);
+}

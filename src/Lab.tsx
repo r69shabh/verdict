@@ -1,3 +1,6 @@
+import { decide } from './decision';
+import { inferLift, sampleRatioP } from './stats';
+
 type Inference = { lift: number; ci_low: number; ci_high: number; chance_to_win: number } | null;
 type MetricResult = {
   metric_id: number;
@@ -78,6 +81,20 @@ function Environment({ name, about, ledgerMode }: { name: string; about: string;
       return ['control', VARIANT].every((arm) => m.variants[arm]?.sum === ledger.arms[arm]?.[metric] && m.variants[arm]?.n === ledger.arms[arm]?.exposed);
     });
   const total = (exposed.control ?? 0) + (exposed[VARIANT] ?? 0);
+  const byName = (metric: string) => metrics.find((m) => names[m.metric_id]?.metric_name === metric);
+  const asInference = (m?: MetricResult) => {
+    const i = m?.inference[VARIANT];
+    return i ? { lift: i.lift, ciLow: i.ci_low, ciHigh: i.ci_high, chanceToWin: i.chance_to_win } : null;
+  };
+  const srmP = sampleRatioP(exposed.control ?? 0, exposed[VARIANT] ?? 0);
+  const decision = decide({ primary: asInference(byName('forecast_own')), guardrail: asInference(byName('plan_copied')), srmP });
+  const recomputed = metrics.filter((m) => m.inference[VARIANT]).map((m) => {
+    const c = m.variants.control!;
+    const v = m.variants[VARIANT]!;
+    const ours = inferLift({ conversions: c.sum, visitors: c.n }, { conversions: v.sum, visitors: v.n });
+    return ours ? Math.abs(ours.chanceToWin - m.inference[VARIANT]!.chance_to_win) : 1;
+  });
+  const recomputeMatches = recomputed.length > 0 && recomputed.every((d) => d < 1e-6);
   return (
     <section className="lab-env" aria-labelledby={`env-${name}`}>
       <div className="lab-env-head">
@@ -92,8 +109,14 @@ function Environment({ name, about, ledgerMode }: { name: string; about: string;
         <strong>{total.toLocaleString('en-US')}</strong> visitors enrolled: {(exposed.control ?? 0).toLocaleString('en-US')} saw the empty form,{' '}
         {(exposed[VARIANT] ?? 0).toLocaleString('en-US')} saw the worked example
         {exposurePayload?.excluded_identities ? `; ${exposurePayload.excluded_identities} excluded for seeing both` : ''}.
-        {payload?.srm_p_value != null && payload.srm_p_value < 0.001 ? ' Sample ratio mismatch: do not trust these numbers.' : ''}
+        {srmP !== null && ` Split check: p = ${srmP < 0.001 ? srmP.toExponential(1) : srmP.toFixed(2)}${srmP < 0.001 ? ', a sample ratio mismatch: do not trust these numbers.' : ', consistent with 50/50.'}`}
       </p>
+      {total > 0 && (
+      <p className={`lab-decision ${decision.call.startsWith('ship') ? 'ship' : ''}`}>
+        <strong>Under the pre-registered rule: {decision.call}.</strong> {decision.why}
+        {name !== 'Production' && ' (Simulated traffic: this checks the pipeline, not the hypothesis.)'}
+      </p>
+      )}
       {total === 0 ? (
         <p className="lab-empty">No visitors yet. The first result appears once each version has 50 visitors and 5 conversions.</p>
       ) : (
@@ -136,6 +159,13 @@ function Environment({ name, about, ledgerMode }: { name: string; about: string;
           </tbody>
         </table>
         </div>
+      )}
+      {recomputed.length > 0 && (
+        <p className="lab-ledger">
+          {recomputeMatches
+            ? 'Verdict recomputed every chance to win above from the raw counts and matches Flagsmith’s figure to within 0.0001 percentage points.'
+            : 'Verdict’s recomputation from the raw counts differs from Flagsmith’s figures.'}
+        </p>
       )}
       {ledger && (
         <p className="lab-ledger">
