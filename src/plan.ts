@@ -44,6 +44,8 @@ ${hypothesis(input, result, names, deadline)}
 - Ship the change if its chance to beat control is at least 95% and Flagsmith shows no sample ratio mismatch.
 - Keep control if the chance is 5% or lower.
 - Anything in between is inconclusive: keep control and report the credible interval.
+
+Forecast with Verdict: https://verdict.rishabhgusain-6.workers.dev
 `;
 }
 

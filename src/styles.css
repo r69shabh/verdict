@@ -780,3 +780,19 @@ a:hover {
     height: auto;
   }
 }
+
+.link {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--cobalt);
+  font: inherit;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+  cursor: pointer;
+}
+
+.link:hover {
+  color: var(--ink);
+}

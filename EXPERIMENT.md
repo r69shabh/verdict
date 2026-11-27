@@ -106,3 +106,11 @@ every visitor gets the chosen version on their next visit.
 - **2026-11-26 21:37 UTC, before the first Production exposure** (results at 21:37 showed 0 exposures). Browsers that
   identify as automated (`navigator.webdriver`, or a bot/crawler/preview/headless user agent) are no longer enrolled:
   they see the empty form and send nothing. Decided before assignment, so it treats both arms the same.
+- **2026-11-27 06:53 UTC, before the first Production exposure** (results at 06:53 showed 0 exposures). Added a footer
+  link to a new `/check` page and a line in the plan output linking to it; the generated pre-registration now ends with a
+  link to Verdict. Identical in both arms.
+- **2026-11-27, power table recomputed.** Comparing Verdict's maths with Flagsmith's results API showed Flagsmith calls a
+  winner on the relative lift with a delta-method standard error (sample variance, n − 1); `src/stats.test.ts` reproduces
+  its published numbers to 9 decimal places. Recomputed with that statistic, the power table above becomes: 300 visitors
+  34%, 600 visitors 54%, 1,237 visitors for 80%, and 2,000 visitors (Sim AB) 94%. The hypothesis, metrics and decision rule
+  are unchanged; the original table is left as registered.

@@ -101,13 +101,18 @@ function clearsFloorAt(input: ForecastInput, days: number, variantRate: number):
   );
 }
 
+// Flagsmith calls a winner when lift / se(lift) clears the threshold, where se comes from the delta
+// method on the relative lift. In absolute terms that statistic is (p1 − p0) / √(v1 + (p1/p0)²·v0).
+function flagsmithShift(p0: number, p1: number, n0: number, n1: number) {
+  const ratio = p1 / p0;
+  return (p1 - p0) / Math.sqrt((p1 * (1 - p1)) / n1 + (ratio * ratio * p0 * (1 - p0)) / n0);
+}
+
 function outcomeAt(input: ForecastInput, days: number, variantRate: number): Outcome {
   if (!clearsFloorAt(input, days, variantRate)) return { win: 0, inconclusive: 1, lose: 0 };
   const { controlN, variantN } = armSizes(input, days);
-  const p0 = input.baselineRate;
-  const sigma = Math.sqrt((p0 * (1 - p0)) / controlN + (variantRate * (1 - variantRate)) / variantN);
+  const shift = flagsmithShift(input.baselineRate, variantRate, controlN, variantN);
   const z = normalQuantile(input.threshold ?? FLAGSMITH_THRESHOLD);
-  const shift = (variantRate - p0) / sigma;
   const win = normalCdf(shift - z);
   const lose = normalCdf(-shift - z);
   return { win, lose, inconclusive: Math.max(0, 1 - win - lose) };
@@ -121,7 +126,8 @@ export function forecast(input: ForecastInput): Forecast {
   const z = normalQuantile(input.threshold ?? FLAGSMITH_THRESHOLD) + normalQuantile(TARGET_POWER);
   const delta = variantRate - controlRate;
   const w = input.variantShare;
-  const varianceUnit = (controlRate * (1 - controlRate)) / (1 - w) + (variantRate * (1 - variantRate)) / w;
+  const ratio = variantRate / controlRate;
+  const varianceUnit = (ratio * ratio * controlRate * (1 - controlRate)) / (1 - w) + (variantRate * (1 - variantRate)) / w;
   let enrolledFor80 = Math.ceil(varianceUnit * (z / delta) ** 2);
   const floorEnrolled = Math.max(
     FLAGSMITH_MIN_IDENTITIES / Math.min(w, 1 - w),
@@ -160,8 +166,7 @@ export function detectableLift(input: ForecastInput, power = TARGET_POWER): numb
     const p1 = p0 * (1 + lift);
     if (!clearsFloorAt(input, input.days, p1)) return false;
     const { controlN, variantN } = armSizes(input, input.days);
-    const sigma = Math.sqrt((p0 * (1 - p0)) / controlN + (p1 * (1 - p1)) / variantN);
-    return normalCdf((p1 - p0) / sigma - normalQuantile(input.threshold ?? FLAGSMITH_THRESHOLD)) >= power;
+    return normalCdf(flagsmithShift(p0, p1, controlN, variantN) - normalQuantile(input.threshold ?? FLAGSMITH_THRESHOLD)) >= power;
   };
   let hi = (1 - 1e-6) / p0 - 1;
   if (!reaches(hi)) return null;

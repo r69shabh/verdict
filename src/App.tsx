@@ -63,6 +63,7 @@ function Disclosure({ assignment }: { assignment: Assignment | null }) {
       </p>
       <p>
         <a href="/lab">See the results so far</a>
+        <a href="/check">Check a test that is already running</a>
         <a href={`${REPO}/blob/main/EXPERIMENT.md`}>Read the pre-registration</a>
         <a href={REPO}>Source on GitHub</a>
         <span>Visits carry a random ID and nothing else.</span>

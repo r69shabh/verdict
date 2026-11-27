@@ -50,6 +50,9 @@ export function PlanPanel({ input, result, names, onNames, deadlineLabel }: Prop
       <div className="plan-intro">
         <h2 id="plan-title">Your plan</h2>
         <p>Commit the pre-registration before you look at any results, then paste the commands to set the experiment up in Flagsmith.</p>
+        <p>
+          Once it is running, <a href="/check">check whether it will finish in time</a>.
+        </p>
         <div className="names">
           <label>Flag <input value={names.flag} onChange={set('flag')} spellCheck={false} /></label>
           <label>Variant key <input value={names.variant} onChange={set('variant')} spellCheck={false} /></label>

@@ -15,7 +15,8 @@
     "simulate": "node scripts/simulate.mjs",
     "lab": "node scripts/lab.mjs",
     "release": "node scripts/lab.mjs snapshot && pnpm ship",
-    "ship": "pnpm build && wrangler deploy"
+    "ship": "pnpm build && wrangler deploy",
+    "e2e": "node scripts/e2e.mjs"
   },
   "dependencies": {
     "@flagsmith/flagsmith": "12.5.0",
@@ -29,6 +30,7 @@
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
     "@vitejs/plugin-react": "6.3.0",
+    "axe-core": "4.14.1",
     "typescript": "5.9.3",
     "vite": "8.3.8",
     "vitest": "5.0.5",

@@ -162,6 +162,7 @@ export function Lab() {
         <a className="wordmark" href="/">Verdict</a>
         <h1>Lab notebook: does a worked example beat an empty form?</h1>
       </header>
+      <main>
       <p className="lab-intro">
         Verdict runs a Flagsmith experiment on its own first screen. Half of visitors get an empty form, half get a worked example, and the primary
         metric counts who forecasts their own numbers. The plan was registered before the experiment started:{' '}
@@ -172,6 +173,7 @@ export function Lab() {
       {ENVIRONMENTS.map((env) => (
         <Environment key={env.name} name={env.name} about={env.about} ledgerMode={env.ledger} />
       ))}
+      </main>
     </div>
   );
 }

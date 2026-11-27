@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { detectableLift, forecast, normalCdf, normalQuantile, outcomeAfter, validate, type ForecastInput } from './forecast';
+import { clearsFloor, inferLift } from './stats';
 
 const base: ForecastInput = {
   baselineRate: 0.3,
@@ -37,10 +38,10 @@ describe('normal helpers', () => {
 });
 
 describe('forecast', () => {
-  it('needs ~1,512 enrolled visitors for 80% power at 30% → 36%', () => {
+  it('needs ~1,831 enrolled visitors for 80% power at 30% → 36% under Flagsmith’s statistic (a difference-of-rates formula says 1,512)', () => {
     const result = forecast(base);
-    expect(result.enrolledFor80).toBeGreaterThan(1490);
-    expect(result.enrolledFor80).toBeLessThan(1530);
+    expect(result.enrolledFor80).toBeGreaterThan(1800);
+    expect(result.enrolledFor80).toBeLessThan(1860);
     expect(result.daysFor80).toBeCloseTo(result.enrolledFor80! / 600, 6);
   });
 
@@ -63,28 +64,26 @@ describe('forecast', () => {
     expect(curve.at(-1)!.win).toBeCloseTo(forecast(base).outcome.win, 10);
   });
 
-  it('agrees with a Monte Carlo of the same Bayesian decision rule', () => {
-    const input = { ...base, days: 1.5 };
+  it.each([
+    ['typical', { ...base, days: 1.5 }],
+    ['low baseline', { ...base, baselineRate: 0.05, relativeLift: 0.3, visitorsPerDay: 2000, days: 2 }],
+    ['uneven split', { ...base, variantShare: 0.3, days: 2 }],
+  ] as const)('agrees with a Monte Carlo of Flagsmith’s exact decision rule (%s)', (_, input) => {
     const result = forecast(input);
     const rand = mulberry32(42);
-    const n = Math.round(result.controlN);
-    const runs = 2000;
+    const n0 = Math.round(result.controlN);
+    const n1 = Math.round(result.variantN);
+    const runs = 3000;
     let wins = 0;
     for (let r = 0; r < runs; r++) {
-      const a = binomial(n, result.controlRate, rand);
-      const b = binomial(n, result.variantRate, rand);
-      const [ma, va] = betaMoments(1 + a, 1 + n - a);
-      const [mb, vb] = betaMoments(1 + b, 1 + n - b);
-      if (normalCdf((mb - ma) / Math.sqrt(va + vb)) > 0.95) wins++;
+      const control = { conversions: binomial(n0, result.controlRate, rand), visitors: n0 };
+      const variant = { conversions: binomial(n1, result.variantRate, rand), visitors: n1 };
+      const inference = clearsFloor(control, variant) ? inferLift(control, variant) : null;
+      if (inference && inference.chanceToWin >= 0.95) wins++;
     }
-    expect(Math.abs(wins / runs - result.outcome.win)).toBeLessThan(0.035);
+    expect(Math.abs(wins / runs - result.outcome.win)).toBeLessThan(0.03);
   });
 });
-
-function betaMoments(alpha: number, beta: number): [number, number] {
-  const sum = alpha + beta;
-  return [alpha / sum, (alpha * beta) / (sum * sum * (sum + 1))];
-}
 
 describe('detectableLift', () => {
   it('is the lift that gives exactly an 80% chance by the deadline', () => {
