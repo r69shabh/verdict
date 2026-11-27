@@ -100,8 +100,10 @@ export async function launch({ width = 1280, height = 900, scale = 1 } = {}) {
     async close() {
       ws.close();
       chrome.kill();
-      await sleep(200);
-      rmSync(profile, { recursive: true, force: true });
+      await new Promise((r) => (chrome.exitCode !== null ? r() : chrome.once('exit', r)));
+      try {
+        rmSync(profile, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 });
+      } catch {}
     },
   };
   await page.viewport(width, height);

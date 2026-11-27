@@ -19,7 +19,8 @@
     "e2e": "node scripts/e2e.mjs",
     "report": "node scripts/report.mjs",
     "shots": "node scripts/shots.mjs",
-    "record": "node scripts/record.mjs"
+    "record": "node scripts/record.mjs",
+    "roughcut": "node scripts/record.mjs && node scripts/roughcut.mjs"
   },
   "dependencies": {
     "@flagsmith/flagsmith": "12.5.0",

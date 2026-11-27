@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Records screen footage for the demo video from the built app in preview mode (nothing is counted).
-// Writes demo/<scene>.mp4 at 1920×1080. Requires ffmpeg. Usage: pnpm build && node scripts/record.mjs [scene...]
+// Writes demo/<scene>.mp4 at 1920×1080 (a 1440×810 window at 4/3 scale, so the app fills the frame). Requires ffmpeg. Usage: pnpm build && node scripts/record.mjs [scene...]
 import { spawn, execFileSync } from 'node:child_process';
 import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { launch } from './browser.mjs';
@@ -13,7 +13,7 @@ await sleep(2500);
 mkdirSync('demo', { recursive: true });
 
 async function record(name, act) {
-  const page = await launch({ width: 1920, height: 1080 });
+  const page = await launch({ width: 1440, height: 810, scale: 4 / 3 });
   const dir = `demo/.frames-${name}`;
   rmSync(dir, { recursive: true, force: true });
   mkdirSync(dir, { recursive: true });

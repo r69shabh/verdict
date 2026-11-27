@@ -1,7 +1,8 @@
 # Demo video: script and shot list (target 2:45)
 
 Footage marked **[rec]** comes from `pnpm build && pnpm record` (1920×1080 clips in `demo/`, preview mode, nothing
-counted). Footage marked **[you]** is a screen recording of the Flagsmith dashboard and a terminal, logged in.
+counted). `pnpm build && pnpm roughcut` also stitches them with title cards into `demo/rough-cut.mp4` (about a
+minute), a timeline to drop the voiceover and the dashboard footage onto. Footage marked **[you]** is a screen recording of the Flagsmith dashboard and a terminal, logged in.
 Keep the voiceover plain; the numbers on screen do the convincing.
 
 | Time | Picture | Voiceover |
