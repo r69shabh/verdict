@@ -102,20 +102,56 @@ function clearsFloorAt(input: ForecastInput, days: number, variantRate: number):
 }
 
 // Flagsmith calls a winner when lift / se(lift) clears the threshold, where se comes from the delta
-// method on the relative lift. In absolute terms that statistic is (p1 − p0) / √(v1 + (p1/p0)²·v0).
-function flagsmithShift(p0: number, p1: number, n0: number, n1: number) {
-  const ratio = p1 / p0;
-  return (p1 - p0) / Math.sqrt((p1 * (1 - p1)) / n1 + (ratio * ratio * p0 * (1 - p0)) / n0);
+// method on the relative lift. In absolute terms that statistic is z = (p̂1 − p̂0) / √(v1 + (p̂1/p̂0)²·v0).
+// Its distribution is skewed (a high p̂1 also inflates the standard error), so instead of a normal
+// approximation the chance of each outcome is integrated: for each plausible observed control rate,
+// solve for the variant rate at which z crosses the threshold, and take the normal tail beyond it.
+// The 5-conversion floor is applied to the observed rates as well.
+const NODES = 48;
+const QUANTILES = Array.from({ length: NODES }, (_, i) => normalQuantile((i + 0.5) / NODES));
+
+function zStatistic(a: number, b: number, n0: number, n1: number) {
+  return (b - a) / Math.sqrt((b * (1 - b)) / n1 + ((b * b) * (1 - a)) / (a * n0));
+}
+
+function crossing(a: number, lo: number, hi: number, target: number, n0: number, n1: number) {
+  for (let i = 0; i < 32; i++) {
+    const mid = (lo + hi) / 2;
+    if (zStatistic(a, mid, n0, n1) >= target) hi = mid;
+    else lo = mid;
+  }
+  return (lo + hi) / 2;
+}
+
+function tails(p0: number, p1: number, n0: number, n1: number, z: number): Outcome {
+  if (n0 < FLAGSMITH_MIN_IDENTITIES || n1 < FLAGSMITH_MIN_IDENTITIES) return { win: 0, inconclusive: 1, lose: 0 };
+  const sd0 = Math.sqrt((p0 * (1 - p0)) / n0);
+  const sd1 = Math.sqrt((p1 * (1 - p1)) / n1);
+  const floor0 = (FLAGSMITH_MIN_CONVERSIONS - 0.5) / n0;
+  const floor1 = (FLAGSMITH_MIN_CONVERSIONS - 0.5) / n1;
+  const top = 1 - 1e-9;
+  let win = 0;
+  let lose = 0;
+  for (const q of QUANTILES) {
+    const a = p0 + sd0 * q;
+    if (a < floor0 || a >= 1) continue;
+    if (zStatistic(a, top, n0, n1) >= z) {
+      const t = Math.max(crossing(a, a, top, z, n0, n1), floor1);
+      win += 1 - normalCdf((t - p1) / sd1);
+    }
+    if (floor1 < a && zStatistic(a, floor1, n0, n1) <= -z) {
+      const t = crossing(a, floor1, a, -z, n0, n1);
+      lose += normalCdf((t - p1) / sd1) - normalCdf((floor1 - p1) / sd1);
+    }
+  }
+  win /= NODES;
+  lose /= NODES;
+  return { win, lose, inconclusive: Math.max(0, 1 - win - lose) };
 }
 
 function outcomeAt(input: ForecastInput, days: number, variantRate: number): Outcome {
-  if (!clearsFloorAt(input, days, variantRate)) return { win: 0, inconclusive: 1, lose: 0 };
   const { controlN, variantN } = armSizes(input, days);
-  const shift = flagsmithShift(input.baselineRate, variantRate, controlN, variantN);
-  const z = normalQuantile(input.threshold ?? FLAGSMITH_THRESHOLD);
-  const win = normalCdf(shift - z);
-  const lose = normalCdf(-shift - z);
-  return { win, lose, inconclusive: Math.max(0, 1 - win - lose) };
+  return tails(input.baselineRate, variantRate, controlN, variantN, normalQuantile(input.threshold ?? FLAGSMITH_THRESHOLD));
 }
 
 export function forecast(input: ForecastInput): Forecast {
@@ -123,12 +159,18 @@ export function forecast(input: ForecastInput): Forecast {
   const variantRate = controlRate * (1 + input.relativeLift);
   const { controlN, variantN } = armSizes(input, input.days);
 
-  const z = normalQuantile(input.threshold ?? FLAGSMITH_THRESHOLD) + normalQuantile(TARGET_POWER);
-  const delta = variantRate - controlRate;
   const w = input.variantShare;
-  const ratio = variantRate / controlRate;
-  const varianceUnit = (ratio * ratio * controlRate * (1 - controlRate)) / (1 - w) + (variantRate * (1 - variantRate)) / w;
-  let enrolledFor80 = Math.ceil(varianceUnit * (z / delta) ** 2);
+  const z = normalQuantile(input.threshold ?? FLAGSMITH_THRESHOLD);
+  const winWith = (enrolled: number) => tails(controlRate, variantRate, enrolled * (1 - w), enrolled * w, z).win;
+  let lo = 1;
+  let hi = 1e3;
+  while (winWith(hi) < TARGET_POWER && hi < 1e10) hi *= 4;
+  for (let i = 0; i < 40 && hi - lo > 1; i++) {
+    const mid = Math.sqrt(lo * hi);
+    if (winWith(mid) >= TARGET_POWER) hi = mid;
+    else lo = mid;
+  }
+  let enrolledFor80 = Math.ceil(hi);
   const floorEnrolled = Math.max(
     FLAGSMITH_MIN_IDENTITIES / Math.min(w, 1 - w),
     FLAGSMITH_MIN_CONVERSIONS / ((1 - w) * controlRate),
@@ -162,16 +204,11 @@ export function forecast(input: ForecastInput): Forecast {
 
 export function detectableLift(input: ForecastInput, power = TARGET_POWER): number | null {
   const p0 = input.baselineRate;
-  const reaches = (lift: number) => {
-    const p1 = p0 * (1 + lift);
-    if (!clearsFloorAt(input, input.days, p1)) return false;
-    const { controlN, variantN } = armSizes(input, input.days);
-    return normalCdf(flagsmithShift(p0, p1, controlN, variantN) - normalQuantile(input.threshold ?? FLAGSMITH_THRESHOLD)) >= power;
-  };
+  const reaches = (lift: number) => outcomeAt(input, input.days, p0 * (1 + lift)).win >= power;
   let hi = (1 - 1e-6) / p0 - 1;
   if (!reaches(hi)) return null;
   let lo = 0;
-  for (let i = 0; i < 60; i++) {
+  for (let i = 0; i < 40; i++) {
     const mid = (lo + hi) / 2;
     if (reaches(mid)) hi = mid;
     else lo = mid;
@@ -184,17 +221,18 @@ export function outcomeAfter(input: ForecastInput, days: number): Outcome {
 }
 
 // Chance that a change with no effect is called a winner at least once when results are read at `looks`
-// equally spaced times and the test stops at the first ≥ threshold reading. Under no effect the z-statistic
-// at information fraction t is W(t)/√t for a Brownian motion W, so this depends only on the number of looks.
+// equally spaced times up to the deadline and the test stops at the first reading at or above the threshold.
+// Simulates the cumulative counts under no effect and applies Flagsmith's statistic and floor at every look.
 const peekingCache = new Map<string, number>();
 
-export function peekingFalseWin(looks: number, threshold = FLAGSMITH_THRESHOLD, runs = 20000, seed = 7): number {
-  looks = Math.min(60, Math.round(looks));
-  if (looks <= 1) return 1 - threshold;
-  const key = `${looks}:${threshold}:${runs}:${seed}`;
+export function peekingFalseWin(input: ForecastInput, looks: number, runs = 4000, seed = 7): number {
+  looks = Math.max(1, Math.min(60, Math.round(looks)));
+  const p = input.baselineRate;
+  const { controlN, variantN } = armSizes(input, input.days);
+  const key = [p, Math.round(controlN), Math.round(variantN), looks, runs, seed, input.threshold ?? FLAGSMITH_THRESHOLD].join(':');
   const cached = peekingCache.get(key);
   if (cached !== undefined) return cached;
-  const z = normalQuantile(threshold);
+  const z = normalQuantile(input.threshold ?? FLAGSMITH_THRESHOLD);
   let state = seed;
   const rand = () => {
     state = (state + 0x6d2b79f5) | 0;
@@ -203,12 +241,27 @@ export function peekingFalseWin(looks: number, threshold = FLAGSMITH_THRESHOLD, 
     return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
   };
   const gauss = () => Math.sqrt(-2 * Math.log(rand() || 1e-12)) * Math.cos(2 * Math.PI * rand());
+  const draw = (n: number) => {
+    if (n * p * (1 - p) > 9) return Math.max(0, Math.round(n * p + Math.sqrt(n * p * (1 - p)) * gauss()));
+    let k = 0;
+    for (let i = 0; i < n; i++) if (rand() < p) k++;
+    return k;
+  };
   let hits = 0;
   for (let r = 0; r < runs; r++) {
-    let w = 0;
+    let n0 = 0;
+    let n1 = 0;
+    let c0 = 0;
+    let c1 = 0;
     for (let k = 1; k <= looks; k++) {
-      w += gauss();
-      if (w / Math.sqrt(k) >= z) {
+      const next0 = Math.round((controlN * k) / looks);
+      const next1 = Math.round((variantN * k) / looks);
+      c0 += draw(next0 - n0);
+      c1 += draw(next1 - n1);
+      n0 = next0;
+      n1 = next1;
+      if (n0 < FLAGSMITH_MIN_IDENTITIES || n1 < FLAGSMITH_MIN_IDENTITIES || c0 < FLAGSMITH_MIN_CONVERSIONS || c1 < FLAGSMITH_MIN_CONVERSIONS) continue;
+      if (zStatistic(c0 / n0, c1 / n1, n0, n1) >= z) {
         hits++;
         break;
       }

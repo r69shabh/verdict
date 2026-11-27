@@ -85,12 +85,20 @@ lift = m₁/m₀ − 1     se = √( v₁/m₀² + (m₁/m₀)²·v₀/m₀² ) 
 
 [src/stats.test.ts](src/stats.test.ts) checks this against Flagsmith's own output for three metrics to 9 decimal
 places. It matters for planning: in absolute terms the statistic is (p₁ − p₀)/√(v₁ + (p₁/p₀)²·v₀), so the control's
-variance is inflated by the lift. For a 30% → 36% test, a textbook difference-of-rates formula says 1,512 visitors
-for an 80% chance; under Flagsmith's statistic it takes **1,831**. Verdict's forecast uses the latter, and a Monte
-Carlo of Flagsmith's exact rule agrees ([src/forecast.test.ts](src/forecast.test.ts)).
+variance is inflated by the lift, and because the standard error is estimated from the same counts the statistic is
+skewed. For a 30% → 36% test, a textbook difference-of-rates formula says 1,512 visitors for an 80% chance; under
+Flagsmith's rule it takes **1,647**, and with no real effect the rule calls a false winner about 4% of the time
+rather than 5%. Verdict's forecast integrates the statistic's actual distribution, including the 5-conversion floor.
+
+**Is "60 in 100" really 60 in 100?** A [calibration study](docs/CALIBRATION.md) of 300 random test plans, each
+simulated 1,000 times under Flagsmith's exact rule, puts Verdict's forecasts within **0.6 percentage points** on
+average. The first version of the forecast used a normal approximation and was off by 5 points at the extremes;
+the study found that, and the integral replaced it.
+
+![Calibration: forecasts against simulated outcomes](docs/calibration.svg)
 
 Other things I found while building, with evidence, are in [docs/FLAGSMITH-NOTES.md](docs/FLAGSMITH-NOTES.md):
-a `null` sample ratio check, the false-winner cost of daily peeking, and browser events lost on tab close without
+a `null` sample ratio check, the false-winner cost of peeking, and browser events lost on tab close without
 `keepalive`.
 
 ## The tools
@@ -134,11 +142,12 @@ Production client-side key is public by design; admin credentials stay in the CL
 
 | Check | Command | What it covers |
 |---|---|---|
-| Unit tests (49) | `pnpm test` | forecast maths vs Monte Carlo of Flagsmith's rule, Flagsmith fixtures, parsing, decision rule, interim check, CLI output run through bash with a stub that proves visitor text never executes |
+| Unit tests (54) | `pnpm test` | forecast maths vs Monte Carlo of Flagsmith's rule, Flagsmith fixtures, parsing, decision rule, interim check, CLI output run through bash with a stub that proves visitor text never executes |
 | End-to-end (9) | `pnpm build && pnpm e2e` | headless Chrome over both arms, 9 worst-case inputs at 1280 and 390 px (no NaN, no overflow, no script errors), `/lab`, `/check`, axe-core accessibility, and a check that preview mode never contacts Flagsmith |
 | CI | GitHub Actions | typecheck, unit tests, build and e2e on every push |
 | Live CLI | logged in [RUNLOG.md](RUNLOG.md) | the generated commands created a real flag, metric and experiment in a scratch environment, then were cleaned up |
 | Ledger | `pnpm lab verify` | Flagsmith's counts equal what the simulator sent |
+| Calibration | `node scripts/calibrate.mjs` | 300 random plans × 1,000 simulations: forecast vs Flagsmith's rule, mean error 0.6 points |
 
 ## Run it
 

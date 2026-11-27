@@ -19,7 +19,7 @@ use it are not enrolled.
 ## WeMakeDevs Discord
 
 > Toggle Wars tip from building my entry: Flagsmith's chance-to-win is a delta-method z on the relative lift. A
-> textbook sample-size formula underestimates the traffic it needs by about a fifth. I built a planner that uses the
+> textbook sample-size formula underestimates the traffic it needs by about 9%. I built a planner that uses the
 > real statistic: https://verdict.rishabhgusain-6.workers.dev (it's also my live A/B test, so every forecast helps).
 
 ## X / Twitter
@@ -30,8 +30,8 @@ use it are not enrolled.
 2. > The page is itself the experiment: half of you get an empty form, half a worked example. Hypothesis,
    > metrics and decision rule were committed before it started. #ToggleWars @WeMakeDevs
 3. > Fun finding: Flagsmith's lift, interval and chance-to-win are reproducible from raw counts to 9 decimals with a
-   > delta method on the relative lift. For a 30% → 36% test that means 1,831 visitors, not the 1,512 a standard
-   > calculator gives. Code + tests: https://github.com/r69shabh/verdict
+   > delta method on the relative lift. For a 30% → 36% test that means 1,647 visitors, not the 1,512 a standard
+   > calculator gives, and a calibration study puts Verdict's forecasts within 0.6 points of the real rule. Code + tests: https://github.com/r69shabh/verdict
 
 ## LinkedIn
 

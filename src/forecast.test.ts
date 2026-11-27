@@ -38,17 +38,17 @@ describe('normal helpers', () => {
 });
 
 describe('forecast', () => {
-  it('needs ~1,831 enrolled visitors for 80% power at 30% → 36% under Flagsmith’s statistic (a difference-of-rates formula says 1,512)', () => {
+  it('needs ~1,647 enrolled visitors for 80% power at 30% → 36% under Flagsmith’s rule (a difference-of-rates formula says 1,512)', () => {
     const result = forecast(base);
-    expect(result.enrolledFor80).toBeGreaterThan(1800);
-    expect(result.enrolledFor80).toBeLessThan(1860);
+    expect(result.enrolledFor80).toBeGreaterThan(1620);
+    expect(result.enrolledFor80).toBeLessThan(1680);
     expect(result.daysFor80).toBeCloseTo(result.enrolledFor80! / 600, 6);
   });
 
-  it('gives ~5% false winners when there is no real effect', () => {
+  it('gives slightly under 5% false winners when there is no real effect, as Flagsmith’s rule does at this size', () => {
     const result = forecast(base);
-    expect(result.noEffectOutcome.win).toBeCloseTo(0.05, 3);
-    expect(result.noEffectOutcome.lose).toBeCloseTo(0.05, 3);
+    expect(result.noEffectOutcome.win).toBeGreaterThan(0.03);
+    expect(result.noEffectOutcome.win).toBeLessThan(0.045);
   });
 
   it('withholds a verdict below Flagsmith’s collecting-data floor', () => {
@@ -110,12 +110,11 @@ describe('validate', () => {
 });
 
 describe('peekingFalseWin', () => {
-  it('is 5% for one look and grows with every extra look', () => {
-    expect(peekingFalseWin(1)).toBeCloseTo(0.05, 6);
-    const two = peekingFalseWin(2);
-    expect(two).toBeGreaterThan(0.075);
-    expect(two).toBeLessThan(0.092);
-    expect(peekingFalseWin(3)).toBeGreaterThan(two);
-    expect(peekingFalseWin(24)).toBeGreaterThan(peekingFalseWin(3));
+  it('matches the single-look false-winner rate and grows with every extra look', () => {
+    const one = peekingFalseWin(base, 1);
+    expect(Math.abs(one - forecast(base).noEffectOutcome.win)).toBeLessThan(0.012);
+    const three = peekingFalseWin(base, 3);
+    expect(three).toBeGreaterThan(one);
+    expect(peekingFalseWin(base, 24)).toBeGreaterThan(three);
   });
 });

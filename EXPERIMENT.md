@@ -122,3 +122,13 @@ every visitor gets the chosen version on their next visit.
   output gained a third block, instrumentation code for JavaScript, React, Python and Node.js, with its own Copy
   button. `plan_copied` therefore means copying the pre-registration, the CLI commands or the instrumentation code.
   Identical in both arms and shown only after a forecast.
+- **2026-11-27, power table recomputed again.** A calibration study ([docs/CALIBRATION.md](docs/CALIBRATION.md))
+  showed the normal approximation used in the previous amendment was too cautious at the extremes. Integrating the
+  statistic's actual distribution (verified against a Monte Carlo of Flagsmith's exact rule), the table becomes:
+  300 visitors 29%, 600 visitors 55%, 1,087 visitors for 80%, 2,000 visitors (Sim AB) 97%, and the chance of a false
+  winner with no real effect at the final read is 2–4% at these sizes. Hypothesis, metrics and decision rule
+  unchanged; the earlier tables are left as written.
+- **2026-11-27 07:24 UTC, before the first Production exposure** (results at 07:23 showed 0 exposures). Deployed the
+  recalibrated forecast described in the previous entry. It changes the numbers shown after pressing Forecast in both
+  arms equally; the first screen and event firing are unchanged.
+

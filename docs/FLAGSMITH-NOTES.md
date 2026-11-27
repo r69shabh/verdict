@@ -9,14 +9,15 @@ the product made a rigorous experiment possible in a day.
   `sum_squares`, lift = m₁/m₀ − 1, se = √(v₁/m₀² + (m₁/m₀)²·v₀/m₀²) with sample variances (n − 1), interval
   lift ± 1.96·se, and chance to win Φ(lift/se) reproduce the results API to 9 decimal places
   ([src/stats.test.ts](../src/stats.test.ts)). The docs describe the engine as Bayesian; documenting the exact
-  computation (or the prior, if there is one) would help people plan sample sizes. With this statistic a 30% → 36%
-  test needs about 1,831 visitors for 80% power, versus 1,512 from the usual difference-of-rates formula.
+  computation (or the prior, if there is one) would help people plan sample sizes. Under this rule a 30% → 36%
+  test needs about 1,647 visitors for 80% power, versus 1,512 from the usual difference-of-rates formula, and with
+  no real effect it calls a false winner about 4% of the time at that size, not 5%.
 - **`srm_p_value` was `null`** for experiments with 1,000 and 2,000 identities and a clean 50/50 split
   ([results/latest/sim-ab.json](../results/latest/sim-ab.json)). The docs say the check runs from 100 identities.
   Verdict computes its own chi-square p-value meanwhile.
-- **Peeking.** The docs say peeking is safe. With this statistic, reading daily and stopping at the first 95% raises
-  the false-winner rate for a no-effect change from 5% to about 12% over four looks and 29% over 72 hourly looks
-  (`peekingFalseWin` in [src/forecast.ts](../src/forecast.ts)). A note in the docs, or a fixed-horizon option, would
+- **Peeking.** The docs say peeking is safe. Simulating Flagsmith's rule on a 1,800-visitor, three-day test with no
+  real effect, stopping at the first 95% reading raises the false-winner rate from 4.0% (one read at the end) to
+  7.6% (daily) and 15.7% (hourly) (`peekingFalseWin` in [src/forecast.ts](../src/forecast.ts)). A note in the docs, or a fixed-horizon option, would
   protect hackathon-style users who refresh constantly.
 
 ## SDKs
