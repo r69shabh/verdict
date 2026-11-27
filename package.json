@@ -18,7 +18,8 @@
     "ship": "pnpm build && wrangler deploy",
     "e2e": "node scripts/e2e.mjs",
     "report": "node scripts/report.mjs",
-    "shots": "node scripts/shots.mjs"
+    "shots": "node scripts/shots.mjs",
+    "record": "node scripts/record.mjs"
   },
   "dependencies": {
     "@flagsmith/flagsmith": "12.5.0",

@@ -116,7 +116,7 @@ flowchart LR
   S --> L[(sim-ledgers/)]
   C[lab.mjs, Flagsmith CLI] -->|create, start, complete| X
   C -->|results API| R[(results/)]
-  R --> LAB[/lab page/]
+  R --> LAB["/lab page"]
   R --> REP[RESULTS.md]
   L --> LAB
 ```
