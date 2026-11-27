@@ -182,3 +182,38 @@ export function detectableLift(input: ForecastInput, power = TARGET_POWER): numb
 export function outcomeAfter(input: ForecastInput, days: number): Outcome {
   return outcomeAt(input, days, input.baselineRate * (1 + input.relativeLift));
 }
+
+// Chance that a change with no effect is called a winner at least once when results are read at `looks`
+// equally spaced times and the test stops at the first ≥ threshold reading. Under no effect the z-statistic
+// at information fraction t is W(t)/√t for a Brownian motion W, so this depends only on the number of looks.
+const peekingCache = new Map<string, number>();
+
+export function peekingFalseWin(looks: number, threshold = FLAGSMITH_THRESHOLD, runs = 20000, seed = 7): number {
+  looks = Math.min(60, Math.round(looks));
+  if (looks <= 1) return 1 - threshold;
+  const key = `${looks}:${threshold}:${runs}:${seed}`;
+  const cached = peekingCache.get(key);
+  if (cached !== undefined) return cached;
+  const z = normalQuantile(threshold);
+  let state = seed;
+  const rand = () => {
+    state = (state + 0x6d2b79f5) | 0;
+    let t = Math.imul(state ^ (state >>> 15), 1 | state);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+  const gauss = () => Math.sqrt(-2 * Math.log(rand() || 1e-12)) * Math.cos(2 * Math.PI * rand());
+  let hits = 0;
+  for (let r = 0; r < runs; r++) {
+    let w = 0;
+    for (let k = 1; k <= looks; k++) {
+      w += gauss();
+      if (w / Math.sqrt(k) >= z) {
+        hits++;
+        break;
+      }
+    }
+  }
+  peekingCache.set(key, hits / runs);
+  return hits / runs;
+}

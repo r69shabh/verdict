@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { detectableLift, forecast, normalCdf, normalQuantile, outcomeAfter, validate, type ForecastInput } from './forecast';
+import { detectableLift, forecast, normalCdf, normalQuantile, outcomeAfter, peekingFalseWin, validate, type ForecastInput } from './forecast';
 import { clearsFloor, inferLift } from './stats';
 
 const base: ForecastInput = {
@@ -106,5 +106,16 @@ describe('validate', () => {
   it('says a field is not a number instead of piling up range errors', () => {
     const errors = validate({ ...base, baselineRate: NaN, relativeLift: NaN });
     expect(errors.map((e) => e.message)).toEqual(['Today’s rate must be a number.', 'The expected lift must be a number.']);
+  });
+});
+
+describe('peekingFalseWin', () => {
+  it('is 5% for one look and grows with every extra look', () => {
+    expect(peekingFalseWin(1)).toBeCloseTo(0.05, 6);
+    const two = peekingFalseWin(2);
+    expect(two).toBeGreaterThan(0.075);
+    expect(two).toBeLessThan(0.092);
+    expect(peekingFalseWin(3)).toBeGreaterThan(two);
+    expect(peekingFalseWin(24)).toBeGreaterThan(peekingFalseWin(3));
   });
 });

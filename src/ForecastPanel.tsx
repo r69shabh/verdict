@@ -1,5 +1,5 @@
 import type { CSSProperties } from 'react';
-import { detectableLift, outcomeAfter, type Forecast, type ForecastInput } from './forecast';
+import { detectableLift, outcomeAfter, peekingFalseWin, type Forecast, type ForecastInput } from './forecast';
 import { formatDuration } from './fields';
 
 type Props = {
@@ -137,7 +137,10 @@ export function ForecastPanel({ input, result, deadlineLabel, sweep }: Props) {
             {result.daysFor80 !== null && result.daysFor80 <= input.days
               ? `You have the runway: about ${count(result.enrolledFor80 ?? 0)} visitors in the test gives an 80% chance, and you should have ${count(result.controlN + result.variantN)}.`
               : `For an 80% chance you need about ${count(result.enrolledFor80 ?? 0)} visitors in the test, ${formatDuration(result.daysFor80 ?? 0)} at your traffic.`}{' '}
-            If your change does nothing, {Math.round(result.noEffectOutcome.win * 100)} in 100 would still crown a false winner.
+            If your change does nothing, {Math.round(result.noEffectOutcome.win * 100)} in 100 would still crown a false winner
+            {input.days >= 2
+              ? `, and ${Math.round(peekingFalseWin(Math.round(input.days)) * 100)} in 100 if you check once a day and stop at the first 95%. Decide when you will read it before you start.`
+              : '.'}
           </p>
         </div>
       )}
