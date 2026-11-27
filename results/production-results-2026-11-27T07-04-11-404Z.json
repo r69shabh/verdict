@@ -1,0 +1,140 @@
+{
+  "environment": "Production",
+  "taken_at": "2026-11-27T07:04:10.451Z",
+  "experiment": {
+    "id": 782,
+    "feature": {
+      "id": 306269,
+      "name": "first_screen",
+      "type": "MULTIVARIATE",
+      "initial_value": "control",
+      "multivariate_options": [
+        {
+          "id": 37505,
+          "uuid": "ae0075a3-62e4-47ae-b732-2281d405f75c",
+          "type": "unicode",
+          "integer_value": null,
+          "string_value": "worked_example",
+          "boolean_value": null,
+          "default_percentage_allocation": 0,
+          "key": "worked_example"
+        }
+      ]
+    },
+    "name": "First screen: worked example vs empty form",
+    "hypothesis": "Pre-filling the planner with a worked example will raise the share of visitors who forecast their own numbers (forecast_own) by at least 25% relative to the empty form, during 27–29 November 2026.",
+    "status": "running",
+    "metrics": [
+      {
+        "id": 888,
+        "metric": 808,
+        "metric_name": "forecast_own",
+        "aggregation": "occurrence",
+        "direction": "up",
+        "expected_direction": "increase",
+        "created_at": "2026-11-26T20:54:44.802019Z"
+      },
+      {
+        "id": 889,
+        "metric": 809,
+        "metric_name": "plan_copied",
+        "aggregation": "occurrence",
+        "direction": "up",
+        "expected_direction": "not_decrease",
+        "created_at": "2026-11-26T20:54:44.802037Z"
+      },
+      {
+        "id": 890,
+        "metric": 810,
+        "metric_name": "forecast_run",
+        "aggregation": "occurrence",
+        "direction": "informational",
+        "expected_direction": "increase",
+        "created_at": "2026-11-26T20:54:44.802048Z"
+      }
+    ],
+    "experiment_rollout": {
+      "enabled": true,
+      "rollout_percentage": 100,
+      "feature_state_value": {
+        "type": "string",
+        "value": "control"
+      },
+      "multivariate_feature_state_values": [
+        {
+          "multivariate_feature_option": 37505,
+          "percentage_allocation": 50
+        }
+      ],
+      "audience": {
+        "match": "any",
+        "segments": []
+      }
+    },
+    "created_at": "2026-11-26T20:54:44.799781Z",
+    "updated_at": "2026-11-26T20:58:25.667486Z",
+    "started_at": "2026-11-26T20:58:25.664443Z",
+    "ended_at": null,
+    "rollout_decision": null,
+    "rollout_variant": null
+  },
+  "exposures": {
+    "exposures": {
+      "as_of": "2026-11-27T07:04:10.131566Z",
+      "last_error_at": null,
+      "refresh_requested_at": "2026-11-27T07:04:10.031767Z",
+      "payload": {
+        "timeseries": {
+          "points": [],
+          "granularity": "hour"
+        },
+        "excluded_identities": 0
+      },
+      "is_final": false
+    }
+  },
+  "results": {
+    "results": {
+      "as_of": "2026-11-27T07:04:10.457731Z",
+      "last_error_at": null,
+      "refresh_requested_at": "2026-11-27T07:04:10.375620Z",
+      "payload": {
+        "metrics": [
+          {
+            "variants": {},
+            "inference": {},
+            "metric_id": 808,
+            "conversions_timeseries": {
+              "points": [],
+              "granularity": "hour"
+            }
+          },
+          {
+            "variants": {},
+            "inference": {},
+            "metric_id": 809,
+            "conversions_timeseries": {
+              "points": [],
+              "granularity": "hour"
+            }
+          },
+          {
+            "variants": {},
+            "inference": {},
+            "metric_id": 810,
+            "conversions_timeseries": {
+              "points": [],
+              "granularity": "hour"
+            }
+          }
+        ],
+        "srm_p_value": null,
+        "exposures_timeseries": {
+          "points": [],
+          "granularity": "hour"
+        }
+      },
+      "is_final": false
+    }
+  }
+}

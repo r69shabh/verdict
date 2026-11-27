@@ -1,6 +1,6 @@
 {
   "environment": "Production",
-  "taken_at": "2026-11-27T06:57:19.230Z",
+  "taken_at": "2026-11-27T07:04:10.451Z",
   "experiment": {
     "id": 782,
     "feature": {
@@ -80,9 +80,9 @@
   },
   "exposures": {
     "exposures": {
-      "as_of": "2026-11-27T06:53:10.901287Z",
+      "as_of": "2026-11-27T07:04:10.131566Z",
       "last_error_at": null,
-      "refresh_requested_at": "2026-11-27T06:53:10.806909Z",
+      "refresh_requested_at": "2026-11-27T07:04:10.031767Z",
       "payload": {
         "timeseries": {
           "points": [],
@@ -95,9 +95,9 @@
   },
   "results": {
     "results": {
-      "as_of": "2026-11-27T06:53:11.161388Z",
+      "as_of": "2026-11-27T07:04:10.457731Z",
       "last_error_at": null,
-      "refresh_requested_at": "2026-11-27T06:53:11.104371Z",
+      "refresh_requested_at": "2026-11-27T07:04:10.375620Z",
       "payload": {
         "metrics": [
           {
