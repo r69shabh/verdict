@@ -95,6 +95,10 @@ every visitor gets the chosen version on their next visit.
 
 ## Amendments
 
+Every amendment below was made before the first Production exposure (each entry cites the results snapshot that
+showed 0 exposures). None changes the hypothesis, the arms, the metrics' events or the decision rule. The current
+power numbers are in the last power entry.
+
 - **2026-11-26 21:28 UTC, before the first Production exposure** (results at 21:28 showed 0 exposures). Deployed fixes
   that apply identically to both arms: number parsing accepts `12,5` and `1.200`; clearer validation messages; the
   results panel adds first-results time, 80% date and smallest detectable lift; the generated CLI commands no longer
