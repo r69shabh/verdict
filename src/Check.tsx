@@ -28,7 +28,7 @@ function fromSnapshot(name: string): Fields | null {
 
 const pct = (x: number, d = 1) => `${(x * 100).toFixed(d)}%`;
 const signed = (x: number) => `${x >= 0 ? '+' : '−'}${Math.abs(x * 100).toFixed(1)}%`;
-const outOf100 = (p: number) => Math.min(99, Math.round(p * 100));
+const outOf100 = (p: number) => (p >= 1 ? 100 : Math.min(99, Math.round(p * 100)));
 
 const READING = {
   winning: 'Winning',
