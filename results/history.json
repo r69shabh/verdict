@@ -1,0 +1,178 @@
+[
+  {
+    "environment": "Sim AA",
+    "as_of": "2026-11-26T21:00:28.703286Z",
+    "exposed": {
+      "control": 497,
+      "worked_example": 503
+    },
+    "conversions": {
+      "control": 146,
+      "worked_example": 147
+    },
+    "primary": {
+      "lift": -0.005160815926359546,
+      "ci_low": -0.1969137222494417,
+      "ci_high": 0.1865920903967226,
+      "chance_to_win": 0.4789654513408236
+    }
+  },
+  {
+    "environment": "Sim AB",
+    "as_of": "2026-11-26T21:00:34.245118Z",
+    "exposed": {
+      "control": 981,
+      "worked_example": 1019
+    },
+    "conversions": {
+      "control": 294,
+      "worked_example": 381
+    },
+    "primary": {
+      "lift": 0.2475916765135888,
+      "ci_low": 0.09237501822885552,
+      "ci_high": 0.40280833479832207,
+      "chance_to_win": 0.9991152239212784
+    }
+  },
+  {
+    "environment": "Production",
+    "as_of": "2026-11-26T21:02:16.804018Z",
+    "exposed": {
+      "control": 0,
+      "worked_example": 0
+    },
+    "conversions": {
+      "control": 0,
+      "worked_example": 0
+    },
+    "primary": null
+  },
+  {
+    "environment": "Production",
+    "as_of": "2026-11-26T21:22:05.639414Z",
+    "exposed": {
+      "control": 0,
+      "worked_example": 0
+    },
+    "conversions": {
+      "control": 0,
+      "worked_example": 0
+    },
+    "primary": null
+  },
+  {
+    "environment": "Production",
+    "as_of": "2026-11-26T21:28:32.148814Z",
+    "exposed": {
+      "control": 0,
+      "worked_example": 0
+    },
+    "conversions": {
+      "control": 0,
+      "worked_example": 0
+    },
+    "primary": null
+  },
+  {
+    "environment": "Sim AA",
+    "as_of": "2026-11-26T21:32:01.780283Z",
+    "exposed": {
+      "control": 497,
+      "worked_example": 503
+    },
+    "conversions": {
+      "control": 146,
+      "worked_example": 147
+    },
+    "primary": {
+      "lift": -0.005160815926359546,
+      "ci_low": -0.1969137222494417,
+      "ci_high": 0.1865920903967226,
+      "chance_to_win": 0.4789654513408236
+    }
+  },
+  {
+    "environment": "Sim AB",
+    "as_of": "2026-11-26T21:32:05.926604Z",
+    "exposed": {
+      "control": 981,
+      "worked_example": 1019
+    },
+    "conversions": {
+      "control": 294,
+      "worked_example": 381
+    },
+    "primary": {
+      "lift": 0.2475916765135888,
+      "ci_low": 0.09237501822885552,
+      "ci_high": 0.40280833479832207,
+      "chance_to_win": 0.9991152239212784
+    }
+  },
+  {
+    "environment": "Production",
+    "as_of": "2026-11-26T21:37:04.283925Z",
+    "exposed": {
+      "control": 0,
+      "worked_example": 0
+    },
+    "conversions": {
+      "control": 0,
+      "worked_example": 0
+    },
+    "primary": null
+  },
+  {
+    "environment": "Production",
+    "as_of": "2026-11-27T06:46:40.786849Z",
+    "exposed": {
+      "control": 0,
+      "worked_example": 0
+    },
+    "conversions": {
+      "control": 0,
+      "worked_example": 0
+    },
+    "primary": null
+  },
+  {
+    "environment": "Production",
+    "as_of": "2026-11-27T06:53:11.161388Z",
+    "exposed": {
+      "control": 0,
+      "worked_example": 0
+    },
+    "conversions": {
+      "control": 0,
+      "worked_example": 0
+    },
+    "primary": null
+  },
+  {
+    "environment": "Production",
+    "as_of": "2026-11-27T07:04:10.457731Z",
+    "exposed": {
+      "control": 0,
+      "worked_example": 0
+    },
+    "conversions": {
+      "control": 0,
+      "worked_example": 0
+    },
+    "primary": null
+  },
+  {
+    "environment": "Production",
+    "as_of": "2026-11-27T07:10:25.802286Z",
+    "exposed": {
+      "control": 0,
+      "worked_example": 0
+    },
+    "conversions": {
+      "control": 0,
+      "worked_example": 0
+    },
+    "primary": null
+  }
+]

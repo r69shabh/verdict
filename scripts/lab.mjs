@@ -58,6 +58,30 @@ function fail(message) {
   process.exit(1);
 }
 
+function historyPoint(snapshot) {
+  const payload = snapshot.results?.results?.payload;
+  const names = Object.fromEntries((snapshot.experiment.metrics ?? []).map((m) => [m.metric, m.metric_name]));
+  const primary = payload?.metrics?.find((m) => names[m.metric_id] === 'forecast_own');
+  const exposed = { control: 0, [VARIANT]: 0 };
+  for (const p of snapshot.exposures?.exposures?.payload?.timeseries?.points ?? []) for (const [arm, n] of Object.entries(p.new_identities)) exposed[arm] = (exposed[arm] ?? 0) + n;
+  return {
+    environment: snapshot.environment,
+    as_of: snapshot.results?.results?.as_of ?? snapshot.taken_at,
+    exposed,
+    conversions: primary ? { control: primary.variants.control?.sum ?? 0, [VARIANT]: primary.variants[VARIANT]?.sum ?? 0 } : null,
+    primary: primary?.inference?.[VARIANT] ?? null,
+  };
+}
+
+function writeHistory() {
+  const points = readdirSync('results')
+    .filter((f) => f.endsWith('.json') && f.includes('-results-'))
+    .map((f) => historyPoint(JSON.parse(readFileSync(`results/${f}`, 'utf8'))));
+  const unique = [...new Map(points.map((p) => [`${p.environment}|${p.as_of}`, p])).values()].sort((a, b) => a.as_of.localeCompare(b.as_of));
+  writeFileSync('results/history.json', JSON.stringify(unique, null, 2) + '\n');
+  return unique.length;
+}
+
 function save(env, kind, data) {
   mkdirSync('results/latest', { recursive: true });
   const slug = env.name.toLowerCase().replace(/\W+/g, '-');
@@ -65,6 +89,7 @@ function save(env, kind, data) {
   const file = `results/${slug}-${kind}-${stamp}.json`;
   writeFileSync(file, JSON.stringify(data, null, 2) + '\n');
   writeFileSync(`results/latest/${slug}.json`, JSON.stringify(data, null, 2) + '\n');
+  writeHistory();
   return file;
 }
 
@@ -172,6 +197,10 @@ const commands = {
     const exp = experimentFor(env) ?? fail(`${env.name}: no experiment yet. Run setup first.`);
     if (exp.status !== 'running') api(`environments/${env.key}/experiments/${exp.id}/start/`, 'POST', {});
     console.log(`${env.name}: experiment #${exp.id} is ${experimentFor(env).status}`);
+  },
+
+  history() {
+    console.log(`results/history.json: ${writeHistory()} points`);
   },
 
   snapshot() {

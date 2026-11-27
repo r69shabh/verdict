@@ -27,6 +27,9 @@ const ROLE: Record<string, string> = { forecast_own: 'Primary', plan_copied: 'Gu
 const snapshots = Object.entries(import.meta.glob<Snapshot>('../results/latest/*.json', { eager: true, import: 'default' }))
   .sort(([a], [b]) => a.localeCompare(b))
   .map(([, s]) => s);
+type HistoryPoint = { environment: string; as_of: string; exposed: Record<string, number>; primary: Inference };
+const history = (Object.values(import.meta.glob<HistoryPoint[]>('../results/history.json', { eager: true, import: 'default' }))[0] ?? []) as HistoryPoint[];
+
 const ledgers = Object.values(import.meta.glob<Ledger>('../sim-ledgers/*.json', { eager: true, import: 'default' }));
 
 const pct = (x: number, digits = 1) => `${(x * 100).toFixed(digits)}%`;
@@ -57,6 +60,44 @@ function Interval({ inf, domain, planted }: { inf: Inference; domain: [number, n
         </>
       )}
     </svg>
+  );
+}
+
+function OverTime({ name }: { name: string }) {
+  const enrolledAt = (p: HistoryPoint) => Object.values(p.exposed).reduce((a, b) => a + b, 0);
+  const points = history.filter((p) => p.environment === name && p.primary);
+  if (points.length < 2 || enrolledAt(points[0]!) === enrolledAt(points.at(-1)!)) return null;
+  const width = 640;
+  const height = 160;
+  const t0 = Date.parse(points[0]!.as_of);
+  const t1 = Date.parse(points.at(-1)!.as_of);
+  const x = (iso: string) => (t1 === t0 ? width : ((Date.parse(iso) - t0) / (t1 - t0)) * width);
+  const y = (p: number) => height - p * height;
+  const line = points.map((p) => `${x(p.as_of).toFixed(1)},${y(p.primary!.chance_to_win).toFixed(1)}`).join(' ');
+  const last = points.at(-1)!;
+  const enrolled = (p: HistoryPoint) => Object.values(p.exposed).reduce((a, b) => a + b, 0);
+  return (
+    <figure className="overtime">
+      <svg viewBox={`-4 -12 ${width + 48} ${height + 36}`} role="img" aria-label={`Chance to beat control for forecast_own over ${points.length} snapshots, now ${pct(last.primary!.chance_to_win)}`}>
+        <line className="ot-guide" x1="0" x2={width} y1={y(0.95)} y2={y(0.95)} />
+        <line className="ot-guide" x1="0" x2={width} y1={y(0.05)} y2={y(0.05)} />
+        <line className="ot-axis" x1="0" x2={width} y1={y(0.5)} y2={y(0.5)} />
+        <text className="ot-note" x={width + 6} y={y(0.95) + 4}>95%</text>
+        <text className="ot-note" x={width + 6} y={y(0.5) + 4}>50%</text>
+        <text className="ot-note" x={width + 6} y={y(0.05) + 4}>5%</text>
+        <polyline className="ot-line" points={line} />
+        {points.map((p) => (
+          <circle key={p.as_of} className="ot-dot" cx={x(p.as_of)} cy={y(p.primary!.chance_to_win)} r="3.5" />
+        ))}
+        <text className="ot-note" x="0" y={height + 18}>{time(points[0]!.as_of)}</text>
+        <text className="ot-note" x={width} y={height + 18} textAnchor="end">{time(last.as_of)}</text>
+      </svg>
+      <figcaption>
+        Chance that the worked example beats the empty form on forecast_own, at each saved snapshot ({enrolled(points[0]!).toLocaleString('en-US')} to{' '}
+        {enrolled(last).toLocaleString('en-US')} visitors). The decision is read once, at the end time in the pre-registration, not whenever the line
+        crosses 95%.
+      </figcaption>
+    </figure>
   );
 }
 
@@ -160,6 +201,7 @@ function Environment({ name, about, ledgerMode }: { name: string; about: string;
         </table>
         </div>
       )}
+      <OverTime name={name} />
       {recomputed.length > 0 && (
         <p className="lab-ledger">
           {recomputeMatches

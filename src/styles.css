@@ -805,3 +805,47 @@ a:hover {
 .lab-decision.ship {
   background: rgb(39 71 216 / 0.1);
 }
+
+.overtime {
+  margin: 0 0 22px;
+  max-width: 720px;
+}
+
+.overtime svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.overtime figcaption {
+  margin-top: 6px;
+  max-width: 72ch;
+  font-size: 0.875rem;
+  color: var(--ink-2);
+}
+
+.ot-line {
+  fill: none;
+  stroke: var(--cobalt);
+  stroke-width: 2.5;
+  stroke-linejoin: round;
+}
+
+.ot-dot {
+  fill: var(--cobalt);
+}
+
+.ot-guide {
+  stroke: var(--rule);
+  stroke-dasharray: 4 4;
+}
+
+.ot-axis {
+  stroke: var(--rule);
+}
+
+.ot-note {
+  fill: var(--ink-2);
+  font-size: 12px;
+  font-family: inherit;
+}
