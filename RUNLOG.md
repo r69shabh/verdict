@@ -24,7 +24,7 @@ Everything that touched the experiments, in order. Times in UTC (IST = UTC+5:30)
 | 2026-11-27 06:57 | Deployed `05f4c8db`: security headers (CSP allowing only Flagsmith's API hosts, nosniff, referrer and permissions policies), `/lab` decision boxes. Verified on the live site: flags and events endpoints reachable, no CSP violations. No change to either arm. |
 | 2026-11-27 07:04 | Production results: 0 exposures. Deployed `/lab` and `/check` as lazily loaded chunks (smaller first-screen bundle; no visible change to either arm). |
 | 2026-11-27 07:06 | Deployed `53869476`: `/check` shows 100 in 100 when the outcome is settled; wordmark link style. No change to either arm. |
-| 2026-11-27 07:10 | Production results: 0 exposures. Deployed the peeking note in the forecast text (see Amendments). |
+| 2026-11-27 07:11 | Production results: 0 exposures at 07:10. Deployed the peeking note in the forecast text (see Amendments). |
 
 ## Disclosures
 

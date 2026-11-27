@@ -114,7 +114,7 @@ every visitor gets the chosen version on their next visit.
   its published numbers to 9 decimal places. Recomputed with that statistic, the power table above becomes: 300 visitors
   34%, 600 visitors 54%, 1,237 visitors for 80%, and 2,000 visitors (Sim AB) 94%. The hypothesis, metrics and decision rule
   are unchanged; the original table is left as registered.
-- **2026-11-27 07:10 UTC, before the first Production exposure** (results at 07:10 showed 0 exposures). The forecast
+- **2026-11-27 07:11 UTC, before the first Production exposure** (results at 07:10 showed 0 exposures). The forecast
   text after pressing Forecast now adds how often a no-effect change is called a winner if results are checked daily
   and the test stops at the first 95% reading. Identical in both arms; shown only after a forecast, so it cannot
   affect whether `forecast_own` or `forecast_run` fire. This experiment's own read stays fixed at the end time above.

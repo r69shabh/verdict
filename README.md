@@ -88,6 +88,10 @@ variance is inflated by the lift. For a 30% → 36% test, a textbook difference-
 for an 80% chance; under Flagsmith's statistic it takes **1,831**. Verdict's forecast uses the latter, and a Monte
 Carlo of Flagsmith's exact rule agrees ([src/forecast.test.ts](src/forecast.test.ts)).
 
+Other things I found while building, with evidence, are in [docs/FLAGSMITH-NOTES.md](docs/FLAGSMITH-NOTES.md):
+a `null` sample ratio check, the false-winner cost of daily peeking, and browser events lost on tab close without
+`keepalive`.
+
 ## The tools
 
 **Plan** (`/`). Fill in traffic, today's rate, the lift you expect and your deadline. Each of 100 dots is one way
