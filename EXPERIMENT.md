@@ -48,7 +48,7 @@ in both), the results panel, and the plan output.
 - `forecast_run` fires when Forecast is pressed on a complete form, including the untouched example. It is reported
   because it is the metric a naive version of this test would use, and it is biased toward the
   variant: pressing Forecast on the example costs one click.
-- `plan_copied` fires when a visitor copies the pre-registration or the CLI commands.
+- `plan_copied` fires when a visitor copies the pre-registration or the CLI commands (and, from the 07:17 amendment, the instrumentation code).
 
 ## Environments
 
@@ -118,3 +118,7 @@ every visitor gets the chosen version on their next visit.
   text after pressing Forecast now adds how often a no-effect change is called a winner if results are checked daily
   and the test stops at the first 95% reading. Identical in both arms; shown only after a forecast, so it cannot
   affect whether `forecast_own` or `forecast_run` fire. This experiment's own read stays fixed at the end time above.
+- **2026-11-27 07:17 UTC, before the first Production exposure** (results at 07:16 showed 0 exposures). The plan
+  output gained a third block, instrumentation code for JavaScript, React, Python and Node.js, with its own Copy
+  button. `plan_copied` therefore means copying the pre-registration, the CLI commands or the instrumentation code.
+  Identical in both arms and shown only after a forecast.

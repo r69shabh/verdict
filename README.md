@@ -38,7 +38,7 @@ Built for [Toggle Wars](https://www.wemakedevs.org/hackathons/flagsmith), Track 
 |---|---|
 | Flag | `first_screen`: `control` (empty form) vs `worked_example` (pre-filled) |
 | Primary metric | `forecast_own`: a forecast shown for numbers that are not the untouched example (occurrence, increase) |
-| Guardrail | `plan_copied`: copied the pre-registration or CLI plan (should not decrease) |
+| Guardrail | `plan_copied`: copied the pre-registration, CLI commands or instrumentation code (should not decrease) |
 | Informational | `forecast_run`: any forecast, which the worked example inflates by design |
 | Split | 100% of visitors, 50/50, bucketed on a random visitor ID |
 | Decision rule | ship at a 95% chance to beat control with no sample ratio mismatch and a guardrail that is not losing; keep control at 5% or below; otherwise inconclusive, keep control |
@@ -69,8 +69,9 @@ and [RESULTS.md](RESULTS.md) both apply it to Flagsmith's own numbers.
 | CLI v2 | [scripts/lab.mjs](scripts/lab.mjs) | creates the flag, variant, metrics and experiments, starts them, and completes them with a rollout decision |
 | Node SDK | [scripts/simulate.mjs](scripts/simulate.mjs) | drives the seeded simulations through the same exposure and event path |
 
-Verdict also gives visitors the same Flagsmith workflow: its plan output is a pre-registration plus CLI commands
-(flag, keyed variant, metric, experiment, start) that were run for real against Flagsmith before shipping.
+Verdict also gives visitors the same Flagsmith workflow: its plan output is a pre-registration, CLI commands (flag,
+keyed variant, metric, experiment, start) that were run for real against Flagsmith before shipping, and SDK code
+for the exposure and the conversion in four languages, syntax-checked in tests.
 
 ## What building this taught me about Flagsmith's statistics
 
@@ -96,7 +97,8 @@ a `null` sample ratio check, the false-winner cost of daily peeking, and browser
 
 **Plan** (`/`). Fill in traffic, today's rate, the lift you expect and your deadline. Each of 100 dots is one way
 the test could play out. You also get when Flagsmith will show its first numbers, when an 80% chance arrives, the
-smallest lift your traffic can catch in time, and a pre-registration plus CLI commands.
+smallest lift your traffic can catch in time, the false-winner cost of checking daily, and a pre-registration,
+CLI commands and instrumentation code for JavaScript, React, Python or Node.js.
 
 **Check** (`/check`). Enter the counts from a running experiment. Verdict shows the reading Flagsmith would give
 now, then simulates the visitors still to come from plausible true rates and applies Flagsmith's rule at your

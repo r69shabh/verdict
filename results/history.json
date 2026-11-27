@@ -174,5 +174,18 @@
       "worked_example": 0
     },
     "primary": null
+  },
+  {
+    "environment": "Production",
+    "as_of": "2026-11-27T07:16:58.060703Z",
+    "exposed": {
+      "control": 0,
+      "worked_example": 0
+    },
+    "conversions": {
+      "control": 0,
+      "worked_example": 0
+    },
+    "primary": null
   }
 ]

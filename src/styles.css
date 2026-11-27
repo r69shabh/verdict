@@ -369,11 +369,30 @@ a:hover {
 
 .plan {
   display: grid;
-  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.1fr) minmax(0, 1.1fr);
-  gap: 28px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
   margin-top: clamp(40px, 6vw, 72px);
   padding-top: 32px;
   border-top: 1px solid var(--rule);
+}
+
+.plan-intro {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+  gap: 8px 40px;
+  align-items: end;
+}
+
+.plan-intro > :not(.names) {
+  grid-column: 1;
+}
+
+.plan-intro .names {
+  grid-column: 2;
+  grid-row: 1 / span 3;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-self: end;
 }
 
 .plan-intro h2 {
@@ -402,6 +421,8 @@ a:hover {
 }
 
 .names input {
+  width: 100%;
+  min-width: 0;
   padding: 9px 11px;
   border: 1px solid var(--rule);
   border-radius: 8px;
@@ -472,9 +493,13 @@ a:hover {
   overflow: auto;
   font: 0.8125rem/1.6 ui-monospace, 'SF Mono', Menlo, monospace;
   color: var(--ink);
+  white-space: pre;
+  scrollbar-color: var(--rule) transparent;
+}
+
+.block pre.prose {
   white-space: pre-wrap;
   overflow-wrap: anywhere;
-  scrollbar-color: var(--rule) transparent;
 }
 
 .disclosure {
@@ -502,11 +527,12 @@ a:hover {
   }
 
   .plan-intro {
-    grid-column: 1 / -1;
+    grid-template-columns: minmax(0, 1fr);
   }
 
-  .names {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+  .plan-intro .names {
+    grid-column: 1;
+    grid-row: auto;
   }
 }
 
@@ -520,7 +546,7 @@ a:hover {
     position: static;
   }
 
-  .names {
+  .plan-intro .names {
     grid-template-columns: minmax(0, 1fr);
   }
 }
@@ -848,4 +874,40 @@ a:hover {
   fill: var(--ink-2);
   font-size: 12px;
   font-family: inherit;
+}
+
+.languages {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 12px 18px 0;
+}
+
+.language {
+  padding: 6px 12px;
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink-2);
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.language[aria-checked='true'] {
+  border-color: var(--night);
+  background: var(--night);
+  color: #fff;
+}
+
+.language:hover:not([aria-checked='true']) {
+  border-color: var(--ink-2);
+  color: var(--ink);
+}
+
+@media (max-width: 480px) {
+  .block-file {
+    display: none;
+  }
 }

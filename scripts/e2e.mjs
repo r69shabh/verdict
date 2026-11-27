@@ -80,7 +80,11 @@ await step('a filled form gives a forecast, a plan and a CLI block', async () =>
   const headline = await page.eval(`document.querySelector('.forecast h2').textContent`);
   assert(/^\d{1,2} in 100$/.test(headline.trim()), `headline was "${headline}"`);
   const blocks = await page.eval(`[...document.querySelectorAll('.plan pre')].map((p) => p.textContent)`);
-  assert(blocks.length === 2 && blocks[0].includes('## Decision rule') && blocks[1].includes('flagsmith feature create a_clearer_headline'), 'plan blocks');
+  assert(blocks.length === 3 && blocks[0].includes('## Decision rule') && blocks[1].includes('flagsmith feature create a_clearer_headline'), 'plan blocks');
+  assert(blocks[2].includes("getExperimentFlag('a_clearer_headline')") && blocks[2].includes("trackEvent('sign_up')"), 'instrumentation block');
+  await page.eval(`[...document.querySelectorAll('.language')].find((b) => b.textContent === 'Python').click()`);
+  await sleep(200);
+  assert((await page.eval(`document.querySelectorAll('.plan pre')[2].textContent`)).includes('get_experiment_flag("a_clearer_headline"'), 'python snippet');
   await axe(page, 'forecast');
 });
 await step('worked example is pre-filled and forecasts as is', async () => {

@@ -8,7 +8,7 @@ const FLAG = 'first_screen';
 const VARIANT = 'worked_example';
 const METRICS = [
   { name: 'forecast_own', direction: 'up', expected: 'increase', description: 'Ran a forecast with their own numbers (primary)' },
-  { name: 'plan_copied', direction: 'up', expected: 'not_decrease', description: 'Copied the pre-registration or CLI plan (guardrail)' },
+  { name: 'plan_copied', direction: 'up', expected: 'not_decrease', description: 'Copied the pre-registration, CLI commands or instrumentation code (guardrail)' },
   { name: 'forecast_run', direction: 'informational', expected: 'increase', description: 'Pressed Forecast on a complete form, including the untouched example' },
 ];
 const NAME = 'First screen: worked example vs empty form';

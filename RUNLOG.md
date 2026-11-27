@@ -26,6 +26,7 @@ Everything that touched the experiments, in order. Times in UTC (IST = UTC+5:30)
 | 2026-11-27 07:06 | Deployed `53869476`: `/check` shows 100 in 100 when the outcome is settled; wordmark link style. No change to either arm. |
 | 2026-11-27 07:11 | Production results: 0 exposures at 07:10. Deployed the peeking note in the forecast text (see Amendments). |
 | 2026-11-27 07:16 | Deployed `/lab` "over time" chart fed by `results/history.json` (every saved snapshot). No change to either arm. |
+| 2026-11-27 07:17 | Production results: 0 exposures at 07:16. Deployed the instrumentation-code block in the plan (see Amendments). |
 
 ## Disclosures
 

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { cleanName, cliCommands, preRegistration, type PlanNames } from './plan';
+import { cleanName, cliCommands, instrumentation, LANGUAGES, preRegistration, type Language, type PlanNames } from './plan';
 import type { Forecast, ForecastInput } from './forecast';
 import { EVENTS, track } from './experiment';
 
@@ -19,7 +19,7 @@ function CopyIcon({ done }: { done: boolean }) {
   );
 }
 
-function Block({ title, file, text }: { title: string; file: string; text: string }) {
+function Block({ title, file, text, prose, children }: { title: string; file: string; text: string; prose?: boolean; children?: React.ReactNode }) {
   const [copied, setCopied] = useState(false);
   const copy = async () => {
     await navigator.clipboard.writeText(text);
@@ -36,12 +36,15 @@ function Block({ title, file, text }: { title: string; file: string; text: strin
           <CopyIcon done={copied} /> {copied ? 'Copied' : 'Copy'}
         </button>
       </div>
-      <pre tabIndex={0}><code>{text}</code></pre>
+      {children}
+      <pre tabIndex={0} className={prose ? 'prose' : undefined}><code>{text}</code></pre>
     </div>
   );
 }
 
 export function PlanPanel({ input, result, names, onNames, deadlineLabel }: Props) {
+  const [language, setLanguage] = useState<Language>('javascript');
+  const current = LANGUAGES.find((l) => l.id === language)!;
   const today = new Date().toLocaleDateString('en-CA');
   const set = (key: keyof PlanNames) => (e: React.ChangeEvent<HTMLInputElement>) =>
     onNames({ ...names, [key]: cleanName(e.target.value, key === 'event' ? 'event' : 'flag') });
@@ -59,8 +62,17 @@ export function PlanPanel({ input, result, names, onNames, deadlineLabel }: Prop
           <label>Success event <input value={names.event} onChange={set('event')} spellCheck={false} /></label>
         </div>
       </div>
-      <Block title="Pre-registration" file="EXPERIMENT.md" text={preRegistration(input, result, names, deadlineLabel, today)} />
+      <Block title="Pre-registration" file="EXPERIMENT.md" prose text={preRegistration(input, result, names, deadlineLabel, today)} />
       <Block title="Flagsmith CLI" file="setup.sh" text={cliCommands(input, result, names, deadlineLabel)} />
+      <Block title="Instrument it" file={current.file} text={instrumentation(names, language)}>
+        <div className="languages" role="radiogroup" aria-label="Language">
+          {LANGUAGES.map((l) => (
+            <button key={l.id} type="button" role="radio" aria-checked={l.id === language} className="language" onClick={() => setLanguage(l.id)}>
+              {l.label}
+            </button>
+          ))}
+        </div>
+      </Block>
     </section>
   );
 }

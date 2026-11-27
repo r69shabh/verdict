@@ -91,3 +91,77 @@ echo "Created experiment $EXPERIMENT_ID"
 flagsmith api api/v1/environments/$ENV/experiments/$EXPERIMENT_ID/start/ -X POST
 `;
 }
+
+export type Language = 'javascript' | 'react' | 'python' | 'node';
+export const LANGUAGES: { id: Language; label: string; file: string }[] = [
+  { id: 'javascript', label: 'JavaScript', file: 'experiment.js' },
+  { id: 'react', label: 'React', file: 'Experiment.jsx' },
+  { id: 'python', label: 'Python', file: 'experiment.py' },
+  { id: 'node', label: 'Node.js', file: 'experiment.mjs' },
+];
+
+export function instrumentation(names: PlanNames, language: Language) {
+  const flag = cleanName(names.flag, 'flag') || 'my_experiment';
+  const variant = cleanName(names.variant, 'flag') || 'variant';
+  const event = cleanName(names.event, 'event') || 'conversion';
+  switch (language) {
+    case 'javascript':
+      return `import flagsmith from '@flagsmith/flagsmith'; // 12.4.0 or newer
+
+await flagsmith.init({ environmentID: '<client-side key>', enableEvents: true });
+await flagsmith.identify(userId); // use the same ID for the exposure and the conversion
+
+// Where the visitor sees the change: evaluates the flag and records the exposure
+const flag = flagsmith.getExperimentFlag('${flag}');
+const showChange = flag?.value === '${variant}';
+
+// Where success happens
+flagsmith.trackEvent('${event}');
+await flagsmith.flushEvents(); // events are batched; flush before the page unloads
+`;
+    case 'react':
+      return `import flagsmith from '@flagsmith/flagsmith'; // 12.4.0 or newer
+import { FlagsmithProvider, useExperiment, useFlagsmith } from '@flagsmith/flagsmith/react';
+
+export function Root({ userId, children }) {
+  return (
+    <FlagsmithProvider flagsmith={flagsmith} options={{ environmentID: '<client-side key>', identity: userId, enableEvents: true }}>
+      {children}
+    </FlagsmithProvider>
+  );
+}
+
+export function Feature() {
+  const flag = useExperiment('${flag}'); // records the exposure when it renders
+  const client = useFlagsmith();
+  const showChange = flag?.value === '${variant}';
+  return <button onClick={() => client.trackEvent('${event}')}>{showChange ? 'New version' : 'Current version'}</button>;
+}
+`;
+    case 'python':
+      return `from flagsmith import Flagsmith  # 6.3.0 or newer
+
+flagsmith = Flagsmith(environment_key="<server-side key>", enable_events=True)
+
+# Where the user sees the change: evaluates the flag and records the exposure
+flag = flagsmith.get_experiment_flag("${flag}", identifier=user_id)
+show_change = flag.value == "${variant}"
+
+# Where success happens (same identifier as the exposure)
+flagsmith.track_event("${event}", identifier=user_id)
+`;
+    case 'node':
+      return `import { Flagsmith } from '@flagsmith/nodejs'; // 9.1.0 or newer
+
+const flagsmith = new Flagsmith({ environmentKey: process.env.FLAGSMITH_SERVER_KEY, enableEvents: true });
+
+// Where the user sees the change: evaluates the flag and records the exposure
+const flag = await flagsmith.getExperimentFlag('${flag}', userId);
+const showChange = flag.value === '${variant}';
+
+// Where success happens (same identifier as the exposure)
+flagsmith.trackEvent('${event}', { identifier: userId });
+await flagsmith.close(); // sends buffered events before the process exits
+`;
+  }
+}
