@@ -142,7 +142,7 @@ Production client-side key is public by design; admin credentials stay in the CL
 
 | Check | Command | What it covers |
 |---|---|---|
-| Unit tests (54) | `pnpm test` | forecast maths vs Monte Carlo of Flagsmith's rule, Flagsmith fixtures, parsing, decision rule, interim check, CLI output run through bash with a stub that proves visitor text never executes |
+| Unit tests (55) | `pnpm test` | forecast maths vs Monte Carlo of Flagsmith's rule, a calibration regression check, Flagsmith fixtures, parsing, decision rule, interim check, CLI output run through bash with a stub that proves visitor text never executes |
 | End-to-end (9) | `pnpm build && pnpm e2e` | headless Chrome over both arms, 9 worst-case inputs at 1280 and 390 px (no NaN, no overflow, no script errors), `/lab`, `/check`, axe-core accessibility, and a check that preview mode never contacts Flagsmith |
 | CI | GitHub Actions | typecheck, unit tests, build and e2e on every push |
 | Live CLI | logged in [RUNLOG.md](RUNLOG.md) | the generated commands created a real flag, metric and experiment in a scratch environment, then were cleaned up |

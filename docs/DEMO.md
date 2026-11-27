@@ -7,7 +7,7 @@ Keep the voiceover plain; the numbers on screen do the convincing.
 | Time | Picture | Voiceover |
 |---|---|---|
 | 0:00 | Verdict home, empty form **[rec: plan, first 2 s]** | "Toggle Wars gives you four days of data. Most A/B tests can't finish in four days, and you only find out on Sunday. Verdict tells you before you start." |
-| 0:12 | Typing the sentence, pressing Forecast, dots lighting up **[rec: plan]** | "You describe the test in one sentence: traffic, today's rate, the lift you expect, the deadline. Each dot is one way the test could play out. Here, 13 in 100 end with a winner by Sunday. Raise the expected lift and it changes." |
+| 0:12 | Typing the sentence, pressing Forecast, dots lighting up **[rec: plan]** | "You describe the test in one sentence: traffic, today's rate, the lift you expect, the deadline. Each dot is one way the test could play out. Here only a handful end with a winner by Sunday; raise the expected lift and watch it change." |
 | 0:32 | Scroll to Your plan, press Copy **[rec: plan, end]** | "You leave with a pre-registration and the Flagsmith CLI commands: flag, keyed variant, metric, experiment, start. I ran those commands against Flagsmith before shipping them." |
 | 0:45 | Side by side: `/?preview=control` and `/?preview=worked_example` **[rec: example]** | "Verdict runs a Flagsmith experiment on itself. One multivariate flag, first_screen: half of visitors get this empty form, half get a worked example." |
 | 0:58 | EXPERIMENT.md on GitHub, then `git log --format='%h %ci %s' -- EXPERIMENT.md` next to the experiment's started_at **[you]** | "Hypothesis: the example raises the share of visitors who forecast their own numbers by 25%. I committed that, the metrics and the decision rule before the experiment started." |
