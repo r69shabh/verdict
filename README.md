@@ -6,9 +6,9 @@
 Experimentation calls a winner in time, then hands you a pre-registration and the Flagsmith CLI commands to
 run the test. And it runs a real Flagsmith experiment on its own first screen.
 
-**Live:** https://verdict.rishabhgusain-6.workers.dev ·
-**Results so far:** [/lab](https://verdict.rishabhgusain-6.workers.dev/lab) ·
-**Check a running test:** [/check](https://verdict.rishabhgusain-6.workers.dev/check) ·
+**Live:** https://verdict.r69.workers.dev ·
+**Results so far:** [/lab](https://verdict.r69.workers.dev/lab) ·
+**Check a running test:** [/check](https://verdict.r69.workers.dev/check) ·
 **Pre-registration:** [EXPERIMENT.md](EXPERIMENT.md) · **Results:** [RESULTS.md](RESULTS.md) · **Run log:** [RUNLOG.md](RUNLOG.md)
 
 Built for [Toggle Wars](https://www.wemakedevs.org/hackathons/flagsmith), Track 01: Test Something Real.
@@ -51,7 +51,7 @@ Three Flagsmith environments keep real and scripted traffic apart:
 | Sim AA | 1,000 scripted visitors, no difference | Flagsmith calls no winner (47.9%), split is clean (p = 0.85) |
 | Sim AB | 2,000 scripted visitors, planted +25% | Flagsmith finds it: +24.8% [+9.2%, +40.3%], 99.9% chance to win |
 
-The decision rule is code ([src/decision.ts](src/decision.ts)): [/lab](https://verdict.rishabhgusain-6.workers.dev/lab)
+The decision rule is code ([src/decision.ts](src/decision.ts)): [/lab](https://verdict.r69.workers.dev/lab)
 and [RESULTS.md](RESULTS.md) both apply it to Flagsmith's own numbers.
 
 ![The lab notebook: Sim AB with the planted lift inside Flagsmith's interval](docs/screenshots/lab.png)

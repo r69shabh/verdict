@@ -45,7 +45,7 @@ ${hypothesis(input, result, names, deadline)}
 - Keep control if the chance is 5% or lower.
 - Anything in between is inconclusive: keep control and report the credible interval.
 
-Forecast with Verdict: https://verdict.rishabhgusain-6.workers.dev
+Forecast with Verdict: https://verdict.r69.workers.dev
 `;
 }
 

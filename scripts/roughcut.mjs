@@ -12,7 +12,7 @@ const cards = [
   ['proof', 'Proving the pipeline first', 'A/A: no false winner. Planted +25%: found at +24.8%. Every count matches the ledger.'],
   ['maths', 'Verdict’s maths is Flagsmith’s maths', 'Reproduces Flagsmith’s results to 9 decimal places. Forecasts calibrated within 0.6 points.'],
   ['check', 'Already running a test?', 'Check whether it will finish in time.'],
-  ['end', 'verdict.rishabhgusain-6.workers.dev', 'github.com/r69shabh/verdict · Toggle Wars, Track 01'],
+  ['end', 'verdict.r69.workers.dev', 'github.com/r69shabh/verdict · Toggle Wars, Track 01'],
 ];
 const page = await launch({ width: 1920, height: 1080 });
 for (const [name, title, line] of cards) {

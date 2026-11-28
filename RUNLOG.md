@@ -29,6 +29,7 @@ Everything that touched the experiments, in order. Times in UTC (IST = UTC+5:30)
 | 2026-11-27 07:17 | Production results: 0 exposures at 07:16. Deployed the instrumentation-code block in the plan (see Amendments). |
 | 2026-11-27 07:20 | Calibration study (300 plans × 1,000 simulations) found the forecast's normal approximation off by 5.0 points on average; replaced with an integral of the statistic's actual distribution, now 0.6 points. |
 | 2026-11-27 07:24 | Production results: 0 exposures at 07:23. Deployed the recalibrated forecast. |
+| 2026-11-28 09:20 | Account workers.dev subdomain changed from `rishabhgusain-6` to `r69`; the live site is now https://verdict.r69.workers.dev and the old URL no longer serves. Deployed `3a266449` with links and share metadata updated to the new address. No change to either arm beyond the URL text. |
 
 ## Disclosures
 
